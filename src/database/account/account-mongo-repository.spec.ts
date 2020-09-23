@@ -66,4 +66,14 @@ describe('Account Mongo Repository', () => {
 
     expect(encryptSpy).toHaveBeenCalledWith('any_senha')
   })
+
+  test('Should throw if Encrypter throws', async () => {
+    const { sut, encrypterStub } = makeSut()
+
+    jest.spyOn(encrypterStub, 'encrypt').mockRejectedValueOnce(new Error())
+
+    const accountData = sut.add(makeFakeAccount())
+
+    await expect(accountData).rejects.toThrow()
+  })
 })
