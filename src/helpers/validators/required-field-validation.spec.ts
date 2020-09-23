@@ -12,4 +12,12 @@ describe('RequiredField Validation', () => {
 
     expect(requiredFieldError).toEqual(new ErrorMessage())
   })
+
+  test('Should not return if validation succeeds', () => {
+    const sut = makeSut()
+
+    const requiredFieldError = sut.validate({ field: 'any_field' })
+
+    expect(requiredFieldError).toBeFalsy()
+  })
 })
