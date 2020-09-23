@@ -76,4 +76,12 @@ describe('Account Mongo Repository', () => {
 
     await expect(accountData).rejects.toThrow()
   })
+
+  test('Should return an account on success', async () => {
+    const { sut } = makeSut()
+
+    const account = await sut.add(makeFakeAccount())
+
+    expect(account).toBeTruthy()
+  })
 })
