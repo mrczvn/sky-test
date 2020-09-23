@@ -16,3 +16,6 @@ export interface IAccountModel {
 export interface IAddAccountRepository {
   add(account: IAddAccountParams): Promise<IAccountModel>
 }
+export interface ILoadAccountByEmailRepository {
+  loadByEmail: (email: string) => Promise<IAccountModel>
+}

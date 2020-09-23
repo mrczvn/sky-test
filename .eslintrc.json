@@ -10,6 +10,7 @@
     "@typescript-eslint/return-await": "off",
     "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/space-before-function-paren": "off",
-    "@typescript-eslint/method-signature-style": "off"
+    "@typescript-eslint/method-signature-style": "off",
+    "@typescript-eslint/indent": "off"
   }
 }
