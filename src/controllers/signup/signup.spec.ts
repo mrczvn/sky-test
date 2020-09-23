@@ -1,5 +1,5 @@
 import { ErrorMessage } from '../../helpers/errors'
-import { badRequest } from '../../helpers/http/http-helper'
+import { badRequest, serverError } from '../../helpers/http/http-helper'
 import { IHttpRequest, IValidation } from '../../helpers/interfaces'
 import {
   IAddAccountRepository,
@@ -82,6 +82,18 @@ describe('SignUp Controller', () => {
     await sut.handle(httpRequest)
 
     expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
+  })
+
+  test('Should return 500 if AddAccount throws', async () => {
+    const { sut, addAccountStub } = makeSut()
+
+    jest.spyOn(addAccountStub, 'add').mockImplementationOnce(() => {
+      throw new Error()
+    })
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(serverError())
   })
 
   test('Should call AddAccount with correct values', async () => {
