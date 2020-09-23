@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
-import { IEncrypter } from '../../../helpers/interfaces/encrypter'
+import { ICompare, IEncrypter } from '../../../helpers/interfaces/encrypter'
 
-export class BcryptAdapter implements IEncrypter {
+export class BcryptAdapter implements IEncrypter, ICompare {
   private readonly salt: number
 
   constructor(salt: number) {
@@ -12,5 +12,11 @@ export class BcryptAdapter implements IEncrypter {
     const hash = await bcrypt.hash(value, this.salt)
 
     return hash
+  }
+
+  async compare(plaintext: string, digest: string): Promise<boolean> {
+    const isValid = await bcrypt.compare(plaintext, digest)
+
+    return isValid
   }
 }

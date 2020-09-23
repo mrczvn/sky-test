@@ -6,9 +6,15 @@ interface SutTypes {
   salt: number
 }
 
-jest
-  .spyOn(bcrypt, 'hash')
-  .mockReturnValue(new Promise((resolve) => resolve('hash')))
+jest.mock('bcrypt', () => ({
+  async hash(): Promise<string> {
+    return 'hash'
+  },
+
+  async compare(): Promise<boolean> {
+    return true
+  }
+}))
 
 const makeSut = (): SutTypes => {
   const salt = 12
@@ -40,10 +46,22 @@ describe('Bcrypt Adapter', () => {
   test('Should throw if bcrypt throws', async () => {
     const { sut } = makeSut()
 
-    jest.spyOn(bcrypt, 'hash').mockRejectedValueOnce(new Error())
+    jest.spyOn(bcrypt, 'hash').mockImplementationOnce(() => {
+      throw new Error()
+    })
 
     const promise = sut.encrypt('any_value')
 
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call compare with correct values', async () => {
+    const { sut } = makeSut()
+
+    const compareSpy = jest.spyOn(bcrypt, 'compare')
+
+    await sut.compare('any_value', 'any_hash')
+
+    expect(compareSpy).toHaveBeenCalledWith('any_value', 'any_hash')
   })
 })
