@@ -7,7 +7,7 @@ export default (app: Express): void => {
 
   app.use('/api', router)
 
-  const dir = join(__dirname, '../routes')
+  const dir = join(__dirname, './')
 
   readdirSync(dir)
     .filter((files): boolean => files.endsWith('routes.ts', files.length))
