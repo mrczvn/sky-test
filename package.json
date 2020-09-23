@@ -35,7 +35,9 @@
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
+    "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^3.6.2"
+    "mongodb": "^3.6.2",
+    "validator": "^13.1.17"
   }
 }
