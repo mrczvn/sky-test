@@ -4,7 +4,7 @@ import {
   IHttpResponse,
   IValidation
 } from '../../helpers/interfaces'
-import { badRequest } from '../../helpers/http'
+import { badRequest, serverError } from '../../helpers/http'
 import { ErrorMessage } from '../../helpers/errors'
 import { IAddAccountRepository } from '../../helpers/interfaces/add-account-repository'
 
@@ -18,12 +18,16 @@ export class SignUpController implements IController {
   }
 
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
-    const requiredFieldError = this.validation.validate(req.body)
+    try {
+      const requiredFieldError = this.validation.validate(req.body)
 
-    if (requiredFieldError) return badRequest(new ErrorMessage())
+      if (requiredFieldError) return badRequest(new ErrorMessage())
 
-    const { nome, email, senha, telefones } = req.body
+      const { nome, email, senha, telefones } = req.body
 
-    await this.addAccount.add({ nome, email, senha, telefones })
+      await this.addAccount.add({ nome, email, senha, telefones })
+    } catch (error) {
+      return serverError()
+    }
   }
 }
