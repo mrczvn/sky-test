@@ -10,3 +10,8 @@ export const serverError = (): IHttpResponse => ({
   'código de status': 500,
   mensagem: new ErrorMessage()
 })
+
+export const ok = (data: any): IHttpResponse => ({
+  'código de status': 200,
+  mensagem: data
+})

@@ -4,7 +4,7 @@ import {
   IHttpResponse,
   IValidation
 } from '../../helpers/interfaces'
-import { badRequest, serverError } from '../../helpers/http'
+import { badRequest, ok, serverError } from '../../helpers/http'
 import { ErrorMessage } from '../../helpers/errors'
 import { IAddAccountRepository } from '../../helpers/interfaces/add-account-repository'
 
@@ -25,7 +25,14 @@ export class SignUpController implements IController {
 
       const { nome, email, senha, telefones } = req.body
 
-      await this.addAccount.add({ nome, email, senha, telefones })
+      const account = await this.addAccount.add({
+        nome,
+        email,
+        senha,
+        telefones
+      })
+
+      return ok(account)
     } catch (error) {
       return serverError()
     }
