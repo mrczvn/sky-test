@@ -41,9 +41,26 @@ export class SignUpController implements IController {
 
       if (!account) return forbidden(new EmailInUseError())
 
-      await this.tokenGenerator.encrypt(account.id)
+      const token = await this.tokenGenerator.encrypt(account.id)
 
-      return ok(account)
+      const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' }
+
+      return ok({
+        id: account.id,
+        data_criacao: account.data_criacao.toLocaleDateString('pt-br', {
+          ...optionsDate,
+          month: 'numeric'
+        }),
+        data_atualizacao: account.data_atualizacao.toLocaleDateString('pt-br', {
+          ...optionsDate,
+          month: 'numeric'
+        }),
+        ultimo_login: account.ultimo_login.toLocaleDateString('pt-br', {
+          ...optionsDate,
+          month: 'numeric'
+        }),
+        token
+      })
     } catch (error) {
       return serverError()
     }

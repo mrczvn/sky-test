@@ -132,12 +132,31 @@ describe('SignUp Controller', () => {
 
   test('Should return 200 if valid data is provided', async () => {
     const timestamp = new Date()
+    const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' }
 
     const { sut } = makeSut(timestamp)
 
+    const account = makeFakeAccount(timestamp)
+
     const httpResponse = await sut.handle(makeFakeRequest())
 
-    expect(httpResponse).toEqual(ok(makeFakeAccount(timestamp)))
+    expect(httpResponse).toEqual(
+      ok({
+        ...account,
+        data_criacao: account.data_criacao.toLocaleDateString('pt-br', {
+          ...optionsDate,
+          month: 'numeric'
+        }),
+        data_atualizacao: account.data_atualizacao.toLocaleDateString('pt-br', {
+          ...optionsDate,
+          month: 'numeric'
+        }),
+        ultimo_login: account.ultimo_login.toLocaleDateString('pt-br', {
+          ...optionsDate,
+          month: 'numeric'
+        })
+      })
+    )
   })
 
   test('Should return 403 if AddAccount returns null', async () => {
