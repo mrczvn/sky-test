@@ -28,4 +28,12 @@ describe('Bcrypt Adapter', () => {
 
     expect(hashSpy).toHaveBeenCalledWith('any_value', salt)
   })
+
+  test('Should return a hash on success', async () => {
+    const { sut } = makeSut()
+
+    const hash = await sut.encrypt('any_value')
+
+    expect(hash).toBe('hash')
+  })
 })
