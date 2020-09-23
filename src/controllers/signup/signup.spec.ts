@@ -1,5 +1,5 @@
 import { ErrorMessage } from '../../helpers/errors'
-import { badRequest, serverError } from '../../helpers/http/http-helper'
+import { badRequest, ok, serverError } from '../../helpers/http/http-helper'
 import { IHttpRequest, IValidation } from '../../helpers/interfaces'
 import {
   IAddAccountRepository,
@@ -23,21 +23,21 @@ const makeValidation = (): IValidation => {
   return new ValidationStub()
 }
 
-const makeAddAccount = (): IAddAccountRepository => {
+const makeAddAccount = (timestamp): IAddAccountRepository => {
   class AddAccountStub implements IAddAccountRepository {
     async add(account: IAddAccountParams): Promise<IAccountModel> {
-      return new Promise((resolve) => resolve(makeFakeAccount()))
+      return new Promise((resolve) => resolve(makeFakeAccount(timestamp)))
     }
   }
 
   return new AddAccountStub()
 }
 
-const makeFakeAccount = (): IAccountModel => ({
+const makeFakeAccount = (timestamp): IAccountModel => ({
   id: 'any_id',
-  data_criacao: new Date(),
-  data_atualizacao: new Date(),
-  ultimo_login: new Date(),
+  data_criacao: timestamp,
+  data_atualizacao: timestamp,
+  ultimo_login: timestamp,
   token: 'any_token'
 })
 
@@ -50,9 +50,9 @@ const makeFakeRequest = (): IHttpRequest => ({
   }
 })
 
-const makeSut = (): SutTypes => {
+const makeSut = (timestamp = new Date()): SutTypes => {
   const validationStub = makeValidation()
-  const addAccountStub = makeAddAccount()
+  const addAccountStub = makeAddAccount(timestamp)
 
   const sut = new SignUpController(validationStub, addAccountStub)
 
@@ -104,5 +104,15 @@ describe('SignUp Controller', () => {
     await sut.handle(makeFakeRequest())
 
     expect(addSpy).toHaveBeenCalledWith(makeFakeRequest().body)
+  })
+
+  test('Should return 200 if valid data is provided', async () => {
+    const timestamp = new Date()
+
+    const { sut } = makeSut(timestamp)
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(ok(makeFakeAccount(timestamp)))
   })
 })
