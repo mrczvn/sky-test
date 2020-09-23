@@ -46,4 +46,16 @@ describe('SignUp Controller', () => {
 
     expect(httpResponse).toEqual(badRequest(new ErrorMessage()))
   })
+
+  test('Should call Validation with correct value', async () => {
+    const { sut, validationStub } = makeSut()
+
+    const validateSpy = jest.spyOn(validationStub, 'validate')
+
+    const httpRequest = makeFakeRequest()
+
+    await sut.handle(httpRequest)
+
+    expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
+  })
 })
