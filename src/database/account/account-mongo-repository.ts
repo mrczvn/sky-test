@@ -20,7 +20,23 @@ export class AccountMongoRepository
 
     if (emailInUse) return null
 
-    await this.encrypter.encrypt(account.senha)
+    const hashedPassword = await this.encrypter.encrypt(account.senha)
+
+    const accountCollection = await MongoHelper.getCollection('accounts')
+
+    const date = new Date()
+
+    const addAccount = await accountCollection.insertOne({
+      ...account,
+      senha: hashedPassword,
+      data_criacao: date,
+      data_atualizacao: date,
+      ultimo_login: date
+    })
+
+    const [accountData] = addAccount.ops
+
+    return MongoHelper.map(accountData)
   }
 
   async loadByEmail(email: string): Promise<IAccountModel> {
