@@ -1,8 +1,36 @@
-import { IAddAccountRepository } from '../../helpers/interfaces/add-account-repository'
+import { IAddAccountParams } from '../../helpers/interfaces/add-account-repository'
+import { IEncrypter } from '../../helpers/interfaces/encrypter'
 import { MongoHelper } from '../mongo-helper'
 import { AccountMongoRepository } from './account-mongo-repository'
 
-const makeSut = (): IAddAccountRepository => new AccountMongoRepository()
+interface SutTypes {
+  sut: AccountMongoRepository
+  encrypterStub: IEncrypter
+}
+
+const makeEncrypter = (): IEncrypter => {
+  class EncrypterStub implements IEncrypter {
+    async encrypt(value: string): Promise<string> {
+      return new Promise((resolve) => resolve('hashed_password'))
+    }
+  }
+  return new EncrypterStub()
+}
+
+const makeFakeAccount = (): IAddAccountParams => ({
+  nome: 'any_nome',
+  email: 'any_email@mail.com',
+  senha: 'any_senha',
+  telefones: [{ numero: 123456789, ddd: 11 }]
+})
+
+const makeSut = (): SutTypes => {
+  const encrypterStub = makeEncrypter()
+
+  const sut = new AccountMongoRepository(encrypterStub)
+
+  return { sut, encrypterStub }
+}
 
 describe('Account Mongo Repository', () => {
   beforeAll(async () => await MongoHelper.connect(process.env.MONGO_URL))
@@ -16,14 +44,9 @@ describe('Account Mongo Repository', () => {
   })
 
   test('Should return null if email in use', async () => {
-    const sut = makeSut()
+    const { sut } = makeSut()
 
-    const account = {
-      nome: 'any_nome',
-      email: 'any_email@mail.com',
-      senha: 'any_senha',
-      telefones: [{ numero: 123456789, ddd: 11 }]
-    }
+    const account = makeFakeAccount()
 
     const accountCollection = await MongoHelper.getCollection('accounts')
 
@@ -32,5 +55,15 @@ describe('Account Mongo Repository', () => {
     const accountData = await sut.add(account)
 
     expect(accountData).toBeFalsy()
+  })
+
+  test('Should call Encrypter with correct password', async () => {
+    const { sut, encrypterStub } = makeSut()
+
+    const encryptSpy = jest.spyOn(encrypterStub, 'encrypt')
+
+    await sut.add(makeFakeAccount())
+
+    expect(encryptSpy).toHaveBeenCalledWith('any_senha')
   })
 })
