@@ -8,6 +8,7 @@ import {
 import { badRequest, forbidden, ok, serverError } from '../../helpers/http'
 import { EmailInUseError, ErrorMessage } from '../../helpers/errors'
 import { IAddAccountRepository } from '../../helpers/interfaces/add-account-repository'
+import { dateToString } from '../../utils/date-to-string'
 
 export class SignUpController implements IController {
   private readonly validation: IValidation
@@ -43,22 +44,11 @@ export class SignUpController implements IController {
 
       const token = await this.tokenGenerator.encrypt(account.id)
 
-      const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' }
-
       return ok({
         id: account.id,
-        data_criacao: account.data_criacao.toLocaleDateString('pt-br', {
-          ...optionsDate,
-          month: 'numeric'
-        }),
-        data_atualizacao: account.data_atualizacao.toLocaleDateString('pt-br', {
-          ...optionsDate,
-          month: 'numeric'
-        }),
-        ultimo_login: account.ultimo_login.toLocaleDateString('pt-br', {
-          ...optionsDate,
-          month: 'numeric'
-        }),
+        data_criacao: dateToString(account.data_criacao),
+        data_atualizacao: dateToString(account.data_atualizacao),
+        ultimo_login: dateToString(account.ultimo_login),
         token
       })
     } catch (error) {

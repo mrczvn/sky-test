@@ -15,6 +15,7 @@ import {
   IAddAccountParams,
   IAccountModel
 } from '../../helpers/interfaces/add-account-repository'
+import { dateToString } from '../../utils/date-to-string'
 import { SignUpController } from './signup'
 
 interface SutTypes {
@@ -132,7 +133,6 @@ describe('SignUp Controller', () => {
 
   test('Should return 200 if valid data is provided', async () => {
     const timestamp = new Date()
-    const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' }
 
     const { sut } = makeSut(timestamp)
 
@@ -143,18 +143,9 @@ describe('SignUp Controller', () => {
     expect(httpResponse).toEqual(
       ok({
         ...account,
-        data_criacao: account.data_criacao.toLocaleDateString('pt-br', {
-          ...optionsDate,
-          month: 'numeric'
-        }),
-        data_atualizacao: account.data_atualizacao.toLocaleDateString('pt-br', {
-          ...optionsDate,
-          month: 'numeric'
-        }),
-        ultimo_login: account.ultimo_login.toLocaleDateString('pt-br', {
-          ...optionsDate,
-          month: 'numeric'
-        })
+        data_criacao: dateToString(account.data_criacao),
+        data_atualizacao: dateToString(account.data_atualizacao),
+        ultimo_login: dateToString(account.ultimo_login)
       })
     )
   })
