@@ -1,11 +1,17 @@
 import { ErrorMessage } from '../../helpers/errors'
 import { badRequest } from '../../helpers/http/http-helper'
 import { IHttpRequest, IValidation } from '../../helpers/interfaces'
+import {
+  IAddAccountRepository,
+  IAddAccountParams,
+  IAccountModel
+} from '../../helpers/interfaces/add-account-repository'
 import { SignUpController } from './signup'
 
 interface SutTypes {
   sut: SignUpController
   validationStub: IValidation
+  addAccountStub: IAddAccountRepository
 }
 
 const makeValidation = (): IValidation => {
@@ -16,6 +22,24 @@ const makeValidation = (): IValidation => {
   }
   return new ValidationStub()
 }
+
+const makeAddAccount = (): IAddAccountRepository => {
+  class AddAccountStub implements IAddAccountRepository {
+    async add(account: IAddAccountParams): Promise<IAccountModel> {
+      return new Promise((resolve) => resolve(makeFakeAccount()))
+    }
+  }
+
+  return new AddAccountStub()
+}
+
+const makeFakeAccount = (): IAccountModel => ({
+  id: 'any_id',
+  data_criacao: new Date(),
+  data_atualizacao: new Date(),
+  ultimo_login: new Date(),
+  token: 'any_token'
+})
 
 const makeFakeRequest = (): IHttpRequest => ({
   body: {
@@ -28,10 +52,11 @@ const makeFakeRequest = (): IHttpRequest => ({
 
 const makeSut = (): SutTypes => {
   const validationStub = makeValidation()
+  const addAccountStub = makeAddAccount()
 
-  const sut = new SignUpController(validationStub)
+  const sut = new SignUpController(validationStub, addAccountStub)
 
-  return { sut, validationStub }
+  return { sut, validationStub, addAccountStub }
 }
 
 describe('SignUp Controller', () => {
@@ -57,5 +82,15 @@ describe('SignUp Controller', () => {
     await sut.handle(httpRequest)
 
     expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
+  })
+
+  test('Should call AddAccount with correct values', async () => {
+    const { sut, addAccountStub } = makeSut()
+
+    const addSpy = jest.spyOn(addAccountStub, 'add')
+
+    await sut.handle(makeFakeRequest())
+
+    expect(addSpy).toHaveBeenCalledWith(makeFakeRequest().body)
   })
 })
