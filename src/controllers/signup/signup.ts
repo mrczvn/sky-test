@@ -4,8 +4,8 @@ import {
   IHttpResponse,
   IValidation
 } from '../../helpers/interfaces'
-import { badRequest, ok, serverError } from '../../helpers/http'
-import { ErrorMessage } from '../../helpers/errors'
+import { badRequest, forbidden, ok, serverError } from '../../helpers/http'
+import { EmailInUseError, ErrorMessage } from '../../helpers/errors'
 import { IAddAccountRepository } from '../../helpers/interfaces/add-account-repository'
 
 export class SignUpController implements IController {
@@ -31,6 +31,8 @@ export class SignUpController implements IController {
         senha,
         telefones
       })
+
+      if (!account) return forbidden(new EmailInUseError())
 
       return ok(account)
     } catch (error) {
