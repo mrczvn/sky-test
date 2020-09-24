@@ -1,5 +1,5 @@
 import { ErrorMessage } from '../../helpers/errors'
-import { badRequest, unauthorized } from '../../helpers/http'
+import { badRequest, ok, unauthorized } from '../../helpers/http'
 import {
   IAccountModel,
   IHttpRequest,
@@ -96,5 +96,27 @@ describe('SignUp Controller', () => {
       httpRequest.body.email,
       httpRequest.body.senha
     )
+  })
+
+  test('Should return 200 if account is authenticate', async () => {
+    const { sut, authenticationStub } = makeSut()
+
+    const date = new Date()
+
+    const account = {
+      id: 'any_id',
+      data_criacao: date,
+      data_atualizacao: date,
+      ultimo_login: date,
+      token: 'any_token'
+    }
+
+    jest.spyOn(authenticationStub, 'auth').mockResolvedValueOnce(account)
+
+    const httpRequest = makeFakeRequest()
+
+    const httpResponse = await sut.handle(httpRequest)
+
+    expect(httpResponse).toEqual(ok(account))
   })
 })
