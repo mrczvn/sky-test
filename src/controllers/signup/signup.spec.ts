@@ -5,16 +5,13 @@ import {
   ok,
   serverError
 } from '../../helpers/http/http-helper'
-import {
-  IHttpRequest,
-  ITokenEncrypter,
-  IValidation
-} from '../../helpers/interfaces'
+import { IHttpRequest, IValidation } from '../../helpers/interfaces'
 import {
   IAddAccountRepository,
   IAddAccountParams,
   IAccountModel
-} from '../../helpers/interfaces/add-account-repository'
+} from '../../helpers/interfaces/account-repository'
+import { IAuthentication } from '../../helpers/interfaces/authentication'
 import { dateToString } from '../../utils/date-to-string'
 import { SignUpController } from './signup'
 
@@ -22,7 +19,7 @@ interface SutTypes {
   sut: SignUpController
   validationStub: IValidation
   addAccountStub: IAddAccountRepository
-  tokenGeneratorStub: ITokenEncrypter
+  authenticationStub: IAuthentication
 }
 
 const makeValidation = (): IValidation => {
@@ -44,13 +41,13 @@ const makeAddAccount = (timestamp): IAddAccountRepository => {
   return new AddAccountStub()
 }
 
-const makeTokenGenerator = (): ITokenEncrypter => {
-  class TokenGeneratorStub implements ITokenEncrypter {
-    async encrypt(plaintext: string): Promise<string> {
-      return 'any_token'
+const makeAuthentication = (): IAuthentication => {
+  class AuthenticationStub implements IAuthentication {
+    async auth(email: string, password: string): Promise<IAccountModel> {
+      return null
     }
   }
-  return new TokenGeneratorStub()
+  return new AuthenticationStub()
 }
 
 const makeFakeAccount = (timestamp): IAccountModel => ({
@@ -73,15 +70,20 @@ const makeFakeRequest = (): IHttpRequest => ({
 const makeSut = (timestamp = new Date()): SutTypes => {
   const validationStub = makeValidation()
   const addAccountStub = makeAddAccount(timestamp)
-  const tokenGeneratorStub = makeTokenGenerator()
+  const authenticationStub = makeAuthentication()
 
   const sut = new SignUpController(
     validationStub,
     addAccountStub,
-    tokenGeneratorStub
+    authenticationStub
   )
 
-  return { sut, validationStub, addAccountStub, tokenGeneratorStub }
+  return {
+    sut,
+    validationStub,
+    addAccountStub,
+    authenticationStub
+  }
 }
 
 describe('SignUp Controller', () => {
@@ -131,12 +133,24 @@ describe('SignUp Controller', () => {
     expect(addSpy).toHaveBeenCalledWith(makeFakeRequest().body)
   })
 
+  test('Should return 403 if AddAccount returns null', async () => {
+    const { sut, addAccountStub } = makeSut()
+
+    jest.spyOn(addAccountStub, 'add').mockReturnValueOnce(null)
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(forbidden(new EmailInUseError()))
+  })
+
   test('Should return 200 if valid data is provided', async () => {
     const timestamp = new Date()
 
-    const { sut } = makeSut(timestamp)
+    const { sut, authenticationStub } = makeSut(timestamp)
 
     const account = makeFakeAccount(timestamp)
+
+    jest.spyOn(authenticationStub, 'auth').mockResolvedValueOnce(account)
 
     const httpResponse = await sut.handle(makeFakeRequest())
 
@@ -148,27 +162,5 @@ describe('SignUp Controller', () => {
         ultimo_login: dateToString(account.ultimo_login)
       })
     )
-  })
-
-  test('Should return 403 if AddAccount returns null', async () => {
-    const { sut, addAccountStub } = makeSut()
-
-    jest.spyOn(addAccountStub, 'add').mockReturnValueOnce(null)
-
-    const httpResponse = await sut.handle(makeFakeRequest())
-
-    expect(httpResponse).toEqual(forbidden(new EmailInUseError()))
-  })
-
-  test('Should call TokenGenerator with correct value', async () => {
-    const { sut, tokenGeneratorStub } = makeSut()
-
-    const encryptSpy = jest.spyOn(tokenGeneratorStub, 'encrypt')
-
-    const httpRequest = makeFakeRequest()
-
-    await sut.handle(httpRequest)
-
-    expect(encryptSpy).toHaveBeenCalledWith('any_id')
   })
 })
