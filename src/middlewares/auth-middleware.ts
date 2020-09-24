@@ -8,14 +8,16 @@ import {
 } from '../helpers/interfaces'
 
 export class AuthMiddleware implements IMiddleware {
-  constructor(private readonly loadAccounByToken: ILoadAccountByToken) {}
+  constructor(private readonly loadAccountByToken: ILoadAccountByToken) {}
 
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
     try {
-      const accessToken = req.headers?.authorization
+      const authorization = req.headers?.authorization
 
-      if (accessToken) {
-        const account = await this.loadAccounByToken.load(accessToken)
+      if (authorization) {
+        const [, accessToken] = authorization.split(' ')
+
+        const account = await this.loadAccountByToken.load(accessToken)
 
         if (account) return ok(account)
       }

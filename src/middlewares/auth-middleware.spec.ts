@@ -59,7 +59,7 @@ describe('Auth Middleware', () => {
 
     await sut.handle(makeFakeRequest())
 
-    expect(loadSpy).toHaveBeenCalledWith('Bearer any_token')
+    expect(loadSpy).toHaveBeenCalledWith('any_token')
   })
 
   test('Should return 403 if LoadAccountByToken returns null', async () => {
