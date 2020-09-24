@@ -221,4 +221,19 @@ describe('DbAuthentication Repository', () => {
 
     await expect(accountData).rejects.toThrow()
   })
+
+  test('Should call UpdateAccessTokenRepository with correct values', async () => {
+    const { sut, updateAccessTokenRepositoryStub } = makeSut()
+
+    const updateAccessTokenSpy = jest.spyOn(
+      updateAccessTokenRepositoryStub,
+      'updateAccessToken'
+    )
+
+    const httpRequest = makeFakeRequest()
+
+    await sut.auth(httpRequest.body.email, httpRequest.body.senha)
+
+    expect(updateAccessTokenSpy).toHaveBeenCalledWith('any_id', 'any_token')
+  })
 })
