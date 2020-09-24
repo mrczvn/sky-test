@@ -1,6 +1,10 @@
 import { AccessDeniedError } from '../helpers/errors/access-denied-error'
-import { forbidden } from '../helpers/http'
-import { IAccountModel, ILoadAccountByToken } from '../helpers/interfaces'
+import { forbidden, ok } from '../helpers/http'
+import {
+  IAccountModel,
+  IHttpRequest,
+  ILoadAccountByToken
+} from '../helpers/interfaces'
 import { AuthMiddleware } from './auth-middleware'
 
 interface SutTypes {
@@ -16,6 +20,10 @@ const makeLoadAccountByToken = (timestamp): ILoadAccountByToken => {
   }
   return new LoadAccounByTokenStub()
 }
+
+const makeFakeRequest = (): IHttpRequest => ({
+  headers: { authorization: 'Bearer any_token' }
+})
 
 const makeFakeAccount = (timestamp): IAccountModel => ({
   id: 'any_id',
@@ -49,7 +57,7 @@ describe('Auth Middleware', () => {
 
     const loadSpy = jest.spyOn(loadAccounByTokenStub, 'load')
 
-    await sut.handle({ headers: { authorization: 'Bearer any_token' } })
+    await sut.handle(makeFakeRequest())
 
     expect(loadSpy).toHaveBeenCalledWith('Bearer any_token')
   })
@@ -64,5 +72,15 @@ describe('Auth Middleware', () => {
     expect(httpResponse).toEqual(
       forbidden(new AccessDeniedError('Não autorizado'))
     )
+  })
+
+  test('Should return 200 if LoadAccountByToken returns an account', async () => {
+    const date = new Date()
+
+    const { sut } = makeSut(date)
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(ok(makeFakeAccount(date)))
   })
 })
