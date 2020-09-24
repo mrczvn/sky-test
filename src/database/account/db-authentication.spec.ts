@@ -195,4 +195,16 @@ describe('DbAuthentication Repository', () => {
 
     await expect(accountData).rejects.toThrow()
   })
+
+  test('Should call Encrypter with correct plaintext', async () => {
+    const { sut, encrypterStub } = makeSut()
+
+    const encrypterSpy = jest.spyOn(encrypterStub, 'encrypt')
+
+    const httpRequest = makeFakeRequest()
+
+    await sut.auth(httpRequest.body.email, httpRequest.body.senha)
+
+    expect(encrypterSpy).toHaveBeenCalledWith('any_id')
+  })
 })
