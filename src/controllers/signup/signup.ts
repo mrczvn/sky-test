@@ -2,27 +2,27 @@ import {
   IController,
   IHttpRequest,
   IHttpResponse,
-  ITokenEncrypter,
   IValidation
 } from '../../helpers/interfaces'
 import { badRequest, forbidden, ok, serverError } from '../../helpers/http'
 import { EmailInUseError, ErrorMessage } from '../../helpers/errors'
-import { IAddAccountRepository } from '../../helpers/interfaces/add-account-repository'
+import { IAddAccountRepository } from '../../helpers/interfaces/account-repository'
 import { dateToString } from '../../utils/date-to-string'
+import { IAuthentication } from '../../helpers/interfaces/authentication'
 
 export class SignUpController implements IController {
   private readonly validation: IValidation
   private readonly addAccount: IAddAccountRepository
-  private readonly tokenGenerator: ITokenEncrypter
+  private readonly authentication: IAuthentication
 
   constructor(
     validation: IValidation,
     addAccount: IAddAccountRepository,
-    tokenGenerator: ITokenEncrypter
+    authentication: IAuthentication
   ) {
     this.validation = validation
     this.addAccount = addAccount
-    this.tokenGenerator = tokenGenerator
+    this.authentication = authentication
   }
 
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
@@ -42,14 +42,14 @@ export class SignUpController implements IController {
 
       if (!account) return forbidden(new EmailInUseError())
 
-      const token = await this.tokenGenerator.encrypt(account.id)
+      const accountData = await this.authentication.auth(email, senha)
 
       return ok({
-        id: account.id,
+        id: accountData.id,
         data_criacao: dateToString(account.data_criacao),
         data_atualizacao: dateToString(account.data_atualizacao),
         ultimo_login: dateToString(account.ultimo_login),
-        token
+        token: accountData.token
       })
     } catch (error) {
       return serverError()
