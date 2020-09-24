@@ -181,4 +181,18 @@ describe('DbAuthentication Repository', () => {
 
     expect(compareSpy).toHaveBeenCalledWith('any_senha', 'any_hashed')
   })
+
+  test('Should throw if HashCompare throws', async () => {
+    const { sut, hashCompareStub } = makeSut()
+
+    jest.spyOn(hashCompareStub, 'compare').mockImplementationOnce(() => {
+      throw new Error()
+    })
+
+    const httpRequest = makeFakeRequest()
+
+    const accountData = sut.auth(httpRequest.body.email, httpRequest.body.senha)
+
+    await expect(accountData).rejects.toThrow()
+  })
 })
