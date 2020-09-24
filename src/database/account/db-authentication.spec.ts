@@ -123,4 +123,19 @@ describe('DbAuthentication Repository', () => {
 
     expect(accountData).toBeNull()
   })
+
+  test('Should call loadAccountByEmailRepository with correct email', async () => {
+    const { sut, loadAccountByEmailRepositoryStub } = makeSut()
+
+    const loadByEmailSpy = jest.spyOn(
+      loadAccountByEmailRepositoryStub,
+      'loadByEmail'
+    )
+
+    const httpRequest = makeFakeRequest()
+
+    await sut.auth(httpRequest.body.email, httpRequest.body.senha)
+
+    expect(loadByEmailSpy).toHaveBeenCalledWith(httpRequest.body.email)
+  })
 })
