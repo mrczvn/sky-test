@@ -11,6 +11,11 @@ export const badRequest = (error: Error): IHttpResponse => ({
   mensagem: error
 })
 
+export const unauthorized = (): IHttpResponse => ({
+  'código de status': 401,
+  mensagem: 'Usuário e/ou senha inválidos'
+})
+
 export const forbidden = (error: Error): IHttpResponse => ({
   'código de status': 403,
   mensagem: error

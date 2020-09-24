@@ -1,11 +1,17 @@
 import { ErrorMessage } from '../../helpers/errors'
-import { badRequest } from '../../helpers/http'
-import { IHttpRequest, IValidation } from '../../helpers/interfaces'
+import { badRequest, unauthorized } from '../../helpers/http'
+import {
+  IAccountModel,
+  IHttpRequest,
+  IValidation
+} from '../../helpers/interfaces'
+import { IAuthentication } from '../../helpers/interfaces/authentication'
 import { SignInController } from './signin'
 
 interface SutTypes {
   sut: SignInController
   validationStub: IValidation
+  authenticationStub: IAuthentication
 }
 
 const makeValidation = (): IValidation => {
@@ -15,6 +21,15 @@ const makeValidation = (): IValidation => {
     }
   }
   return new ValidationStub()
+}
+
+const makeAuthentication = (): IAuthentication => {
+  class AuthenticationStub implements IAuthentication {
+    async auth(email: string, password: string): Promise<IAccountModel> {
+      return null
+    }
+  }
+  return new AuthenticationStub()
 }
 
 const makeFakeRequest = (): IHttpRequest => ({
@@ -28,10 +43,11 @@ const makeFakeRequest = (): IHttpRequest => ({
 
 const makeSut = (): SutTypes => {
   const validationStub = makeValidation()
+  const authenticationStub = makeAuthentication()
 
-  const sut = new SignInController(validationStub)
+  const sut = new SignInController(validationStub, authenticationStub)
 
-  return { sut, validationStub }
+  return { sut, validationStub, authenticationStub }
 }
 
 describe('SignUp Controller', () => {
@@ -57,5 +73,13 @@ describe('SignUp Controller', () => {
     await sut.handle(httpRequest)
 
     expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
+  })
+
+  test('Should return 401 if Authentication returns null', async () => {
+    const { sut } = makeSut()
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(unauthorized())
   })
 })
