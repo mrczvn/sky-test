@@ -1,5 +1,5 @@
 import { AccessDeniedError } from '../helpers/errors/access-denied-error'
-import { forbidden } from '../helpers/http'
+import { forbidden, ok } from '../helpers/http'
 import {
   IHttpRequest,
   IHttpResponse,
@@ -14,7 +14,9 @@ export class AuthMiddleware implements IMiddleware {
     const accessToken = req.headers?.authorization
 
     if (accessToken) {
-      await this.loadAccounByToken.load(accessToken)
+      const account = await this.loadAccounByToken.load(accessToken)
+
+      if (account) return ok(account)
     }
 
     return forbidden(new AccessDeniedError('Não autorizado'))
