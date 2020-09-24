@@ -1,5 +1,5 @@
 import { AccessDeniedError } from '../helpers/errors/access-denied-error'
-import { forbidden, ok } from '../helpers/http'
+import { forbidden, ok, serverError } from '../helpers/http'
 import {
   IAccountModel,
   IHttpRequest,
@@ -82,5 +82,17 @@ describe('Auth Middleware', () => {
     const httpResponse = await sut.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(ok(makeFakeAccount(date)))
+  })
+
+  test('Should throw if LoadAccountByToken throws', async () => {
+    const { sut, loadAccounByTokenStub } = makeSut()
+
+    jest.spyOn(loadAccounByTokenStub, 'load').mockImplementationOnce(() => {
+      throw new Error()
+    })
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(serverError())
   })
 })
