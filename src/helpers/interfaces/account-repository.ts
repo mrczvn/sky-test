@@ -36,3 +36,7 @@ export interface ILoadAccountByEmailRepository {
 export interface IUpdateAccessTokenRepository {
   updateAccessToken(id: string, token: string): Promise<void>
 }
+
+export interface ILoadAccountByTokenRepository {
+  loadByToken: (token: string, role?: string) => Promise<IAccountModel>
+}
