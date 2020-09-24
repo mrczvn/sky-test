@@ -1,14 +1,19 @@
 import {
+  IAccount,
   IAccountModel,
   IAddAccountParams,
   IAddAccountRepository,
-  ILoadAccountByEmailRepository
-} from '../../helpers/interfaces/add-account-repository'
+  ILoadAccountByEmailRepository,
+  IUpdateAccessTokenRepository
+} from '../../helpers/interfaces/account-repository'
 import { IEncrypter } from '../../helpers/interfaces/encrypter'
 import { MongoHelper } from '../mongo-helper'
 
 export class AccountMongoRepository
-  implements IAddAccountRepository, ILoadAccountByEmailRepository {
+  implements
+    IAddAccountRepository,
+    ILoadAccountByEmailRepository,
+    IUpdateAccessTokenRepository {
   private readonly encrypter: IEncrypter
 
   constructor(encrypter: IEncrypter) {
@@ -39,11 +44,30 @@ export class AccountMongoRepository
     return MongoHelper.map(accountData)
   }
 
-  async loadByEmail(email: string): Promise<IAccountModel> {
+  async loadByEmail(email: string): Promise<IAccount> {
     const accountCollection = await MongoHelper.getCollection('accounts')
 
     const account = await accountCollection.findOne({ email })
 
     return account
+  }
+
+  async updateAccessToken(id: string, token: string): Promise<void> {
+    const accountCollection = await MongoHelper.getCollection('accounts')
+
+    const date = new Date()
+
+    await accountCollection.updateOne(
+      {
+        _id: id
+      },
+      {
+        $set: {
+          token,
+          data_atualizacao: date,
+          ultimo_login: date
+        }
+      }
+    )
   }
 }
