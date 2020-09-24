@@ -13,15 +13,26 @@ describe('SignUp Routes', () => {
     await accountCollection.deleteMany({})
   })
 
-  test('Should return an account on success', async () => {
-    await request(app)
-      .post('/api/signup')
-      .send({
-        nome: 'any_nome',
-        email: 'any_email@mail.com',
-        senha: 'any_senha',
-        telefones: [{ numero: 123456789, ddd: 11 }]
-      })
-      .expect(200)
+  describe('POST /signup', () => {
+    test('Should return 200 on signup', async () => {
+      await request(app)
+        .post('/api/signup')
+        .send({
+          nome: 'any_nome',
+          email: 'any_email@mail.com',
+          senha: '123',
+          telefones: [{ numero: 123456789, ddd: 11 }]
+        })
+        .expect(200)
+      await request(app)
+        .post('/api/signup')
+        .send({
+          nome: 'any_nome',
+          email: 'any_email@mail.com',
+          senha: '123',
+          telefones: [{ numero: 123456789, ddd: 11 }]
+        })
+        .expect(403)
+    })
   })
 })
