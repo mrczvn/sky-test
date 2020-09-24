@@ -1,4 +1,4 @@
-import { IAddAccountParams } from '../../helpers/interfaces/add-account-repository'
+import { IAddAccountParams } from '../../helpers/interfaces/account-repository'
 import { IEncrypter } from '../../helpers/interfaces/encrypter'
 import { MongoHelper } from '../mongo-helper'
 import { AccountMongoRepository } from './account-mongo-repository'
@@ -70,7 +70,9 @@ describe('Account Mongo Repository', () => {
   test('Should throw if Encrypter throws', async () => {
     const { sut, encrypterStub } = makeSut()
 
-    jest.spyOn(encrypterStub, 'encrypt').mockRejectedValueOnce(new Error())
+    jest.spyOn(encrypterStub, 'encrypt').mockImplementationOnce(() => {
+      throw new Error()
+    })
 
     const accountData = sut.add(makeFakeAccount())
 
