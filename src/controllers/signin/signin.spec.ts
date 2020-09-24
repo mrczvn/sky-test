@@ -82,4 +82,19 @@ describe('SignUp Controller', () => {
 
     expect(httpResponse).toEqual(unauthorized())
   })
+
+  test('Should call Authenticaton with correct values', async () => {
+    const { sut, authenticationStub } = makeSut()
+
+    const addSpy = jest.spyOn(authenticationStub, 'auth')
+
+    const httpRequest = makeFakeRequest()
+
+    await sut.handle(httpRequest)
+
+    expect(addSpy).toHaveBeenCalledWith(
+      httpRequest.body.email,
+      httpRequest.body.senha
+    )
+  })
 })
