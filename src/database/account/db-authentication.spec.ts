@@ -169,4 +169,16 @@ describe('DbAuthentication Repository', () => {
 
     expect(accountData).toBeFalsy()
   })
+
+  test('Should call HashCompare with correct values', async () => {
+    const { sut, hashCompareStub } = makeSut()
+
+    const compareSpy = jest.spyOn(hashCompareStub, 'compare')
+
+    const httpRequest = makeFakeRequest()
+
+    await sut.auth(httpRequest.body.email, httpRequest.body.senha)
+
+    expect(compareSpy).toHaveBeenCalledWith('any_senha', 'any_hashed')
+  })
 })
