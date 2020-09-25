@@ -84,7 +84,6 @@ export class AccountMongoRepository
 
       if (differenceDate) return account
     }
-
     return null
   }
 }

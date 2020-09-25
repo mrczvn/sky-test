@@ -7,6 +7,7 @@ import {
   IValidation
 } from '../../helpers/interfaces'
 import { IAuthentication } from '../../helpers/interfaces/authentication'
+import { dateToString } from '../../utils/date-to-string'
 
 export class SignInController implements IController {
   private readonly validation: IValidation
@@ -29,7 +30,13 @@ export class SignInController implements IController {
 
       if (!authenticationAccount) return unauthorized()
 
-      return ok(authenticationAccount)
+      return ok({
+        id: authenticationAccount.id,
+        data_criacao: dateToString(authenticationAccount.data_criacao),
+        data_atualizacao: dateToString(authenticationAccount.data_atualizacao),
+        ultimo_login: dateToString(authenticationAccount.ultimo_login),
+        token: authenticationAccount.token
+      })
     } catch (error) {
       serverError()
     }

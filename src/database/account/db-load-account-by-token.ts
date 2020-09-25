@@ -12,16 +12,24 @@ export class DbLoadAccountByToken implements ILoadAccountByToken {
   ) {}
 
   async load(accessToken: string, role?: string): Promise<IAccountModel> {
-    const token = await this.decrypter.decrypt(accessToken)
+    try {
+      const token = await this.decrypter.decrypt(accessToken)
 
-    if (token) {
-      const account = await this.loadAccountByTokenRepository.loadByToken(
-        accessToken,
-        role
-      )
+      if (token) {
+        const account = await this.loadAccountByTokenRepository.loadByToken(
+          accessToken,
+          role
+        )
 
-      if (account) return account
+        const invalidSession: any = 'Sessão inválida'
+
+        if (!account) return invalidSession
+
+        return account
+      }
+      return null
+    } catch (error) {
+      console.log(error)
     }
-    return null
   }
 }
