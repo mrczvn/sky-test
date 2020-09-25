@@ -7,6 +7,7 @@ import {
   IUpdateAccessTokenRepository
 } from '../../helpers/interfaces/account-repository'
 import { IEncrypter } from '../../helpers/interfaces/encrypter'
+import { compareDate } from '../../utils/compare-date'
 import { MongoHelper } from '../mongo-helper'
 
 export class AccountMongoRepository
@@ -69,5 +70,21 @@ export class AccountMongoRepository
         }
       }
     )
+  }
+
+  async loadByToken(token: string, role?: string): Promise<IAccountModel> {
+    const accountCollection = await MongoHelper.getCollection('accounts')
+
+    const date = new Date()
+
+    const account = await accountCollection.findOne({ token })
+
+    if (account) {
+      const differenceDate = compareDate(date, account.ultimo_login)
+
+      if (differenceDate) return account
+    }
+
+    return null
   }
 }
