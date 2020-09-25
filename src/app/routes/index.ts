@@ -11,7 +11,7 @@ export default (app: Express): void => {
 
   app.all('*', (req, res) => {
     for (const route of requiredRotues) {
-      if (!req.url[route]) return res.json({ menssagem: 'mensagem de error' })
+      if (!req.url[route]) return res.json({ mensagem: 'mensagem de error' })
     }
   })
 
