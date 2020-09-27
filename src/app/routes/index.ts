@@ -7,10 +7,10 @@ export default (app: Express): void => {
 
   app.use('/api', router)
 
-  const requiredRotues = ['/api', '/api/signup', '/api/signin', '/api/account']
+  const requiredRoutes = ['/api', '/api/signup', '/api/signin', '/api/account']
 
   app.all('*', (req, res) => {
-    for (const route of requiredRotues) {
+    for (const route of requiredRoutes) {
       if (!req.url[route]) return res.json({ mensagem: 'mensagem de error' })
     }
   })
