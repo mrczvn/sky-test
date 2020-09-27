@@ -34,6 +34,10 @@ const makeLoadAccountByTokenRepository = (
 
 const makeFakeAccount = (timestamp): IAccountModel => ({
   id: 'any_id',
+  nome: 'any_nome',
+  email: 'any_email@mail.com',
+  senha: 'any_hashed',
+  telefones: [{ numero: 123456789, ddd: 11 }],
   data_criacao: timestamp,
   data_atualizacao: timestamp,
   ultimo_login: timestamp,
@@ -87,7 +91,7 @@ describe('DbLoadAccountByToken Usecase', () => {
     expect(loadByTokenSpy).toHaveBeenCalledWith('any_token', 'any_role')
   })
 
-  test('Should return null if LoadAccountByTokenRepository returns null', async () => {
+  test('Should return Sessão inválida if LoadAccountByTokenRepository returns null', async () => {
     const { sut, loadAccountByTokenRepositoryStub } = makeSut()
 
     jest
@@ -96,7 +100,7 @@ describe('DbLoadAccountByToken Usecase', () => {
 
     const account = await sut.load('any_token', 'any_role')
 
-    expect(account).toBeNull()
+    expect(account).toBe('Sessão inválida')
   })
 
   test('Should throw if LoadAccountByTokenRepository throws', async () => {
@@ -104,7 +108,9 @@ describe('DbLoadAccountByToken Usecase', () => {
 
     jest
       .spyOn(loadAccountByTokenRepositoryStub, 'loadByToken')
-      .mockRejectedValueOnce(new Error())
+      .mockImplementationOnce(() => {
+        throw new Error()
+      })
 
     const promise = sut.load('any_token', 'any_role')
 
