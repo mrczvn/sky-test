@@ -19,14 +19,20 @@ describe('SignIn Route', () => {
 
   describe('POST /signin', () => {
     test('Should return 200 on signin', async () => {
+      const date = new Date()
+
       const senha = await hash('123', 12)
 
       await accountCollection.insertOne({
         nome: 'any_nome',
         email: 'any_email@mail.com',
         senha,
-        telefones: [{ numero: 123456789, ddd: 11 }]
+        telefones: [{ numero: 123456789, ddd: 11 }],
+        data_criacao: date,
+        data_atualizacao: date,
+        ultimo_login: date
       })
+
       await request(app)
         .post('/api/signin')
         .send({
