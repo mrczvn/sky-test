@@ -19,12 +19,9 @@ export class AuthMiddleware implements IMiddleware {
 
         const account = await this.loadAccountByToken.load(accessToken)
 
-        const invalidSession: any = 'Sessão inválida'
+        if (!account) return forbidden(new AccessDeniedError('Sessão inválida'))
 
-        if (account === invalidSession) {
-          return forbidden(new AccessDeniedError(invalidSession))
-        }
-        if (account) return ok(account)
+        return ok({ user: account })
       }
       return forbidden(new AccessDeniedError('Não autorizado'))
     } catch (error) {
