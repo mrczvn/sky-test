@@ -6,6 +6,7 @@ import {
   IValidation
 } from '../../helpers/interfaces'
 import { IAuthentication } from '../../helpers/interfaces/authentication'
+import { transformeAccountModel } from '../../utils/transforme-account-model'
 import { SignInController } from './signin'
 
 interface SutTypes {
@@ -105,18 +106,23 @@ describe('SignUp Controller', () => {
 
     const account = {
       id: 'any_id',
+      nome: 'any_nome',
+      email: 'any_email@mail.com',
+      senha: 'any_senha',
+      telefones: [{ ddd: 11, numero: 123456789 }],
       data_criacao: date,
       data_atualizacao: date,
       ultimo_login: date,
       token: 'any_token'
     }
-
-    jest.spyOn(authenticationStub, 'auth').mockResolvedValueOnce(account)
+    jest
+      .spyOn(authenticationStub, 'auth')
+      .mockResolvedValueOnce(transformeAccountModel(account))
 
     const httpRequest = makeFakeRequest()
 
     const httpResponse = await sut.handle(httpRequest)
 
-    expect(httpResponse).toEqual(ok(account))
+    expect(httpResponse).toEqual(ok(transformeAccountModel(account)))
   })
 })

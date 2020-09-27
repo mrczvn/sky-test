@@ -7,23 +7,14 @@ import {
 import { badRequest, forbidden, ok, serverError } from '../../helpers/http'
 import { EmailInUseError, ErrorMessage } from '../../helpers/errors'
 import { IAddAccountRepository } from '../../helpers/interfaces/account-repository'
-import { dateToString } from '../../utils/date-to-string'
 import { IAuthentication } from '../../helpers/interfaces/authentication'
 
 export class SignUpController implements IController {
-  private readonly validation: IValidation
-  private readonly addAccount: IAddAccountRepository
-  private readonly authentication: IAuthentication
-
   constructor(
-    validation: IValidation,
-    addAccount: IAddAccountRepository,
-    authentication: IAuthentication
-  ) {
-    this.validation = validation
-    this.addAccount = addAccount
-    this.authentication = authentication
-  }
+    private readonly validation: IValidation,
+    private readonly addAccount: IAddAccountRepository,
+    private readonly authentication: IAuthentication
+  ) {}
 
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
     try {
@@ -42,15 +33,12 @@ export class SignUpController implements IController {
 
       if (!account) return forbidden(new EmailInUseError())
 
-      const accountData = await this.authentication.auth(email, senha)
+      const isAuthenticatedAccount = await this.authentication.auth(
+        email,
+        senha
+      )
 
-      return ok({
-        id: accountData.id,
-        data_criacao: dateToString(account.data_criacao),
-        data_atualizacao: dateToString(account.data_atualizacao),
-        ultimo_login: dateToString(account.ultimo_login),
-        token: accountData.token
-      })
+      return ok(isAuthenticatedAccount)
     } catch (error) {
       return serverError()
     }

@@ -4,21 +4,14 @@ import {
   IHttpRequest,
   IHttpResponse
 } from '../../helpers/interfaces'
-import { dateToString } from '../../utils/date-to-string'
+import { transformeAccountModel } from '../../utils/transforme-account-model'
 
-export class GetAccount implements IController {
+export class GetAccountController implements IController {
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
     try {
-      const account = req.body.mensagem
-
-      return ok({
-        ...account,
-        data_criacao: dateToString(account.data_criacao),
-        data_atualizacao: dateToString(account.data_atualizacao),
-        ultimo_login: dateToString(account.ultimo_login)
-      })
+      return ok(transformeAccountModel(req.body))
     } catch (error) {
-      serverError()
+      return serverError()
     }
   }
 }

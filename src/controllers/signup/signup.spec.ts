@@ -12,7 +12,7 @@ import {
   IAccountModel
 } from '../../helpers/interfaces/account-repository'
 import { IAuthentication } from '../../helpers/interfaces/authentication'
-import { dateToString } from '../../utils/date-to-string'
+import { transformeAccountModel } from '../../utils/transforme-account-model'
 import { SignUpController } from './signup'
 
 interface SutTypes {
@@ -52,6 +52,10 @@ const makeAuthentication = (): IAuthentication => {
 
 const makeFakeAccount = (timestamp): IAccountModel => ({
   id: 'any_id',
+  nome: 'any_nome',
+  email: 'any_email@mail.com',
+  senha: 'any_senha',
+  telefones: [{ ddd: 11, numero: 123456789 }],
   data_criacao: timestamp,
   data_atualizacao: timestamp,
   ultimo_login: timestamp,
@@ -150,18 +154,13 @@ describe('SignUp Controller', () => {
 
     const account = makeFakeAccount(timestamp)
 
-    jest.spyOn(authenticationStub, 'auth').mockResolvedValueOnce(account)
+    jest
+      .spyOn(authenticationStub, 'auth')
+      .mockResolvedValueOnce(transformeAccountModel(account))
 
     const httpResponse = await sut.handle(makeFakeRequest())
 
-    expect(httpResponse).toEqual(
-      ok({
-        ...account,
-        data_criacao: dateToString(account.data_criacao),
-        data_atualizacao: dateToString(account.data_atualizacao),
-        ultimo_login: dateToString(account.ultimo_login)
-      })
-    )
+    expect(httpResponse).toEqual(ok(transformeAccountModel(account)))
   })
 
   test('Should call Authentication with correct values', async () => {

@@ -6,6 +6,7 @@ import {
   IUpdateAccessTokenRepository
 } from '../../helpers/interfaces'
 import { IAuthentication } from '../../helpers/interfaces/authentication'
+import { transformeAccountModel } from '../../utils/transforme-account-model'
 
 export class DbAuthentication implements IAuthentication {
   private readonly loadAccountByEmailRepository: ILoadAccountByEmailRepository
@@ -39,15 +40,13 @@ export class DbAuthentication implements IAuthentication {
           accessToken
         )
 
-        const accountData = {
-          id: account._id,
-          data_criacao: account.data_criacao,
-          data_atualizacao: account.data_atualizacao,
-          ultimo_login: account.ultimo_login,
-          token: accessToken
-        }
+        const { _id } = account
 
-        return accountData
+        delete account._id
+
+        const accountData = { ...account, id: _id, token: accessToken }
+
+        return transformeAccountModel(accountData)
       }
     }
     return null
