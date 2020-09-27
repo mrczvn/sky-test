@@ -27,6 +27,10 @@ const makeFakeRequest = (): IHttpRequest => ({
 
 const makeFakeAccount = (timestamp): IAccountModel => ({
   id: 'any_id',
+  nome: 'any_nome',
+  email: 'any_email@mail.com',
+  senha: 'any_senha',
+  telefones: [{ ddd: 11, numero: 123456789 }],
   data_criacao: timestamp,
   data_atualizacao: timestamp,
   ultimo_login: timestamp,

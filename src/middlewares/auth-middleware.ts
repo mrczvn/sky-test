@@ -12,7 +12,7 @@ export class AuthMiddleware implements IMiddleware {
 
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
     try {
-      const authorization = req.headers.authorization
+      const authorization = req.headers?.authorization
 
       if (authorization) {
         const [, accessToken] = authorization.split(' ')
@@ -24,7 +24,6 @@ export class AuthMiddleware implements IMiddleware {
         if (account === invalidSession) {
           return forbidden(new AccessDeniedError(invalidSession))
         }
-
         if (account) return ok(account)
       }
       return forbidden(new AccessDeniedError('Não autorizado'))

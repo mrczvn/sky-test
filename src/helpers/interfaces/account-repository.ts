@@ -5,14 +5,6 @@ export interface IAddAccountParams {
   telefones: any
 }
 
-export interface IAccountModel {
-  id: string
-  data_criacao: Date
-  data_atualizacao: Date
-  ultimo_login: Date
-  token: string
-}
-
 export interface IAccount {
   _id: string
   nome: string
@@ -22,6 +14,18 @@ export interface IAccount {
   data_criacao: Date
   data_atualizacao: Date
   ultimo_login: Date
+  token: string
+}
+
+export interface IAccountModel {
+  id: string
+  nome: string
+  email: string
+  senha: string
+  telefones: any
+  data_criacao: string
+  data_atualizacao: string
+  ultimo_login: string
   token: string
 }
 
