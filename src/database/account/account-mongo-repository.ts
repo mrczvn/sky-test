@@ -15,11 +15,7 @@ export class AccountMongoRepository
     IAddAccountRepository,
     ILoadAccountByEmailRepository,
     IUpdateAccessTokenRepository {
-  private readonly encrypter: IEncrypter
-
-  constructor(encrypter: IEncrypter) {
-    this.encrypter = encrypter
-  }
+  constructor(private readonly encrypter: IEncrypter) {}
 
   async add(account: IAddAccountParams): Promise<IAccountModel> {
     const emailInUse = await this.loadByEmail(account.email)
@@ -48,9 +44,7 @@ export class AccountMongoRepository
   async loadByEmail(email: string): Promise<IAccount> {
     const accountCollection = await MongoHelper.getCollection('accounts')
 
-    const account = await accountCollection.findOne({ email })
-
-    return account
+    return await accountCollection.findOne({ email })
   }
 
   async updateAccessToken(id: string, token: string): Promise<void> {

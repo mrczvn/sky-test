@@ -9,13 +9,10 @@ import {
 import { IAuthentication } from '../../helpers/interfaces/authentication'
 
 export class SignInController implements IController {
-  private readonly validation: IValidation
-  private readonly authentication: IAuthentication
-
-  constructor(validation: IValidation, authentication: IAuthentication) {
-    this.validation = validation
-    this.authentication = authentication
-  }
+  constructor(
+    private readonly validation: IValidation,
+    private readonly authentication: IAuthentication
+  ) {}
 
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
     try {
