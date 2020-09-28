@@ -91,7 +91,7 @@ describe('DbLoadAccountByToken Usecase', () => {
     expect(loadByTokenSpy).toHaveBeenCalledWith('any_token', 'any_role')
   })
 
-  test('Should return Sessão inválida if LoadAccountByTokenRepository returns null', async () => {
+  test('Should return null if LoadAccountByTokenRepository returns null', async () => {
     const { sut, loadAccountByTokenRepositoryStub } = makeSut()
 
     jest
@@ -100,7 +100,7 @@ describe('DbLoadAccountByToken Usecase', () => {
 
     const account = await sut.load('any_token', 'any_role')
 
-    expect(account).toBe('Sessão inválida')
+    expect(account).toBe(null)
   })
 
   test('Should throw if LoadAccountByTokenRepository throws', async () => {
