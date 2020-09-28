@@ -9,14 +9,16 @@ export class JwtAdapter implements ITokenEncrypter, ITokenDecrypter {
   }
 
   async encrypt(plaintext: string): Promise<string> {
-    const ciphertext = await jwt.sign({ id: plaintext }, this.secret)
+    const ciphertext = jwt.sign({ id: plaintext }, this.secret)
 
     return ciphertext
   }
 
-  async decrypt(ciphertext: string): Promise<string> {
-    const plaintext: any = await jwt.verify(ciphertext, this.secret)
-
-    return plaintext
+  async decrypt(ciphertext: string): Promise<string | Object> {
+    try {
+      return jwt.verify(ciphertext, this.secret)
+    } catch (error) {
+      return null
+    }
   }
 }
