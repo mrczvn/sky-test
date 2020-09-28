@@ -12,8 +12,8 @@ export const adaptRoute = (controller: IController) => async (
   const statusCode = httpResponse['código de status']
 
   const body = httpResponse.mensagem
-  console.log(body)
-  if (statusCode === 200 && statusCode <= 299) {
+
+  if (statusCode >= 200 && statusCode <= 299) {
     return res.status(statusCode).json(body)
   }
 

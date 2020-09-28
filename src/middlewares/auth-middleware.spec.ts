@@ -85,7 +85,7 @@ describe('Auth Middleware', () => {
 
     const httpResponse = await sut.handle(makeFakeRequest())
 
-    expect(httpResponse).toEqual(ok(makeFakeAccount(date)))
+    expect(httpResponse).toEqual(ok({ user: makeFakeAccount(date) }))
   })
 
   test('Should throw if LoadAccountByToken throws', async () => {

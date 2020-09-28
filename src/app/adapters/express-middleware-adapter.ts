@@ -15,7 +15,7 @@ export const adaptMiddleware = (middleware: IMiddleware) => async (
   const { mensagem } = httpResponse
 
   if (statusCode === 200) {
-    Object.assign(req.body, httpResponse)
+    Object.assign(req.user, mensagem)
 
     next()
   } else {

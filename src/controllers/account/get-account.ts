@@ -9,7 +9,7 @@ import { transformeAccountModel } from '../../utils/transforme-account-model'
 export class GetAccountController implements IController {
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
     try {
-      return ok(transformeAccountModel(req.body))
+      return ok(transformeAccountModel(req.user))
     } catch (error) {
       return serverError()
     }
