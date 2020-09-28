@@ -3,5 +3,5 @@ export interface ITokenEncrypter {
 }
 
 export interface ITokenDecrypter {
-  decrypt(ciphertext: string): Promise<string>
+  decrypt(ciphertext: string): Promise<string | Object>
 }
