@@ -30,17 +30,21 @@ export interface IAccountModel {
 }
 
 export interface IAddAccountRepository {
-  add(account: IAddAccountParams): Promise<IAccountModel>
+  add: (account: IAddAccountParams) => Promise<IAccountModel>
 }
 
 export interface ILoadAccountByEmailRepository {
-  loadByEmail(email: string): Promise<IAccount>
+  loadByEmail: (email: string) => Promise<IAccount>
 }
 
 export interface IUpdateAccessTokenRepository {
-  updateAccessToken(id: string, token: string): Promise<void>
+  updateAccessToken: (id: string, token: string) => Promise<void>
 }
 
 export interface ILoadAccountByTokenRepository {
   loadByToken: (token: string, role?: string) => Promise<IAccountModel>
+}
+
+export interface ILoadAccountByIdRepository {
+  loadById: (id: string) => Promise<IAccountModel>
 }
