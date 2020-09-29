@@ -6,7 +6,7 @@ import {
   IHttpResponse,
   IValidation
 } from '../../helpers/interfaces'
-import { IAuthentication } from '../../helpers/interfaces/authentication'
+import { IAuthentication } from '../../helpers/interfaces/db/authentication'
 
 export class SignInController implements IController {
   constructor(

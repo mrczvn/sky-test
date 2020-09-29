@@ -10,8 +10,8 @@ import {
   IAddAccountRepository,
   IAddAccountParams,
   IAccountModel
-} from '../../helpers/interfaces/account-repository'
-import { IAuthentication } from '../../helpers/interfaces/authentication'
+} from '../../helpers/interfaces/db/account-repository'
+import { IAuthentication } from '../../helpers/interfaces/db/authentication'
 import { transformeAccountModel } from '../../utils/transforme-account-model'
 import { SignUpController } from './signup'
 

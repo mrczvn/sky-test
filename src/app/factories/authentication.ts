@@ -2,7 +2,7 @@ import { AccountMongoRepository } from '../../database/account/account-mongo-rep
 import { DbAuthentication } from '../../database/account/db-authentication'
 import { BcryptAdapter } from '../../database/criptography/bcrypt-adapter/bcrypt-adapter'
 import { JwtAdapter } from '../../database/criptography/jwt-adapter/jwt-adapter'
-import { IAuthentication } from '../../helpers/interfaces/authentication'
+import { IAuthentication } from '../../helpers/interfaces/db/authentication'
 
 export const makeDbAuthentication = (): IAuthentication => {
   const salt = 12

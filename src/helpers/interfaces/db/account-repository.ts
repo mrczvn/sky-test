@@ -6,7 +6,7 @@ export interface IAddAccountParams {
 }
 
 export interface IAccount {
-  _id: string
+  id: string
   nome: string
   email: string
   senha: string

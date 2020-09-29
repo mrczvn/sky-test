@@ -63,7 +63,7 @@ const makeFakeRequest = (): IHttpRequest => ({
 })
 
 const makeFakeAccount = (timestamps = new Date()): IAccount => ({
-  _id: 'any_id',
+  id: 'any_id',
   nome: 'any_nome',
   email: 'any_email@mail.com',
   senha: 'any_hashed',

@@ -5,7 +5,7 @@ import {
   IHttpRequest,
   IValidation
 } from '../../helpers/interfaces'
-import { IAuthentication } from '../../helpers/interfaces/authentication'
+import { IAuthentication } from '../../helpers/interfaces/db/authentication'
 import { transformeAccountModel } from '../../utils/transforme-account-model'
 import { SignInController } from './signin'
 

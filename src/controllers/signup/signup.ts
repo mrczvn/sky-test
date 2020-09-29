@@ -6,8 +6,8 @@ import {
 } from '../../helpers/interfaces'
 import { badRequest, forbidden, ok, serverError } from '../../helpers/http'
 import { EmailInUseError, ErrorMessage } from '../../helpers/errors'
-import { IAddAccountRepository } from '../../helpers/interfaces/account-repository'
-import { IAuthentication } from '../../helpers/interfaces/authentication'
+import { IAddAccountRepository } from '../../helpers/interfaces/db/account-repository'
+import { IAuthentication } from '../../helpers/interfaces/db/authentication'
 
 export class SignUpController implements IController {
   constructor(

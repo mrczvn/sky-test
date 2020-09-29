@@ -1,5 +1,5 @@
-import { IAddAccountParams } from '../../helpers/interfaces/account-repository'
-import { IEncrypter } from '../../helpers/interfaces/encrypter'
+import { IAddAccountParams } from '../../helpers/interfaces/db/account-repository'
+import { IEncrypter } from '../../helpers/interfaces/db/encrypter'
 import { MongoHelper } from '../mongo-helper'
 import { AccountMongoRepository } from './account-mongo-repository'
 
