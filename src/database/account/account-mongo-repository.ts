@@ -5,9 +5,8 @@ import {
   IAddAccountRepository,
   ILoadAccountByEmailRepository,
   IUpdateAccessTokenRepository
-} from '../../helpers/interfaces/account-repository'
-import { IEncrypter } from '../../helpers/interfaces/encrypter'
-import { compareDate } from '../../utils/compare-date'
+} from '../../helpers/interfaces/db/account-repository'
+import { IEncrypter } from '../../helpers/interfaces/db/encrypter'
 import { MongoHelper } from '../mongo-helper'
 
 export class AccountMongoRepository
@@ -44,7 +43,9 @@ export class AccountMongoRepository
   async loadByEmail(email: string): Promise<IAccount> {
     const accountCollection = await MongoHelper.getCollection('accounts')
 
-    return await accountCollection.findOne({ email })
+    const account = await accountCollection.findOne({ email })
+
+    return account && MongoHelper.map(account)
   }
 
   async updateAccessToken(id: string, token: string): Promise<void> {
@@ -66,18 +67,11 @@ export class AccountMongoRepository
     )
   }
 
-  async loadByToken(token: string, role?: string): Promise<IAccountModel> {
+  async loadByToken(token: string, role?: string): Promise<IAccount> {
     const accountCollection = await MongoHelper.getCollection('accounts')
-
-    const date = new Date()
 
     const account = await accountCollection.findOne({ token })
 
-    if (account) {
-      const differenceDate = compareDate(date, account.ultimo_login)
-
-      if (differenceDate) return account
-    }
-    return null
+    return account && MongoHelper.map(account)
   }
 }

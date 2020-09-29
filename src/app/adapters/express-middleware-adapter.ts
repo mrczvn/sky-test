@@ -12,15 +12,13 @@ export const adaptMiddleware = (middleware: IMiddleware) => async (
 
   const statusCode = httpResponse['código de status']
 
-  const { mensagem } = httpResponse
+  const body = httpResponse.mensagem
 
   if (statusCode === 200) {
-    Object.assign(req.user, mensagem)
+    Object.assign(req, body)
 
     next()
   } else {
-    res.status(statusCode).json({
-      mensagem: mensagem.name
-    })
+    return res.status(statusCode).json({ mensagem: body })
   }
 }

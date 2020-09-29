@@ -5,7 +5,7 @@ export const adaptRoute = (controller: IController) => async (
   req: Request,
   res: Response
 ) => {
-  const httpRequest: IHttpRequest = { body: req.body }
+  const httpRequest: IHttpRequest = { body: req.body, user: req.user }
 
   const httpResponse = await controller.handle(httpRequest)
 
@@ -17,5 +17,5 @@ export const adaptRoute = (controller: IController) => async (
     return res.status(statusCode).json(body)
   }
 
-  return res.status(statusCode).json({ mensagem: body.name })
+  return res.status(statusCode).json({ mensagem: body })
 }

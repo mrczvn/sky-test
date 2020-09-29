@@ -5,7 +5,7 @@ import {
   ITokenEncrypter,
   IUpdateAccessTokenRepository
 } from '../../helpers/interfaces'
-import { IAuthentication } from '../../helpers/interfaces/authentication'
+import { IAuthentication } from '../../helpers/interfaces/db/authentication'
 import { transformeAccountModel } from '../../utils/transforme-account-model'
 
 export class DbAuthentication implements IAuthentication {
@@ -26,22 +26,14 @@ export class DbAuthentication implements IAuthentication {
       )
 
       if (isValidComparison) {
-        const accessToken = await this.encrypter.encrypt(account._id)
+        const accessToken = await this.encrypter.encrypt(account.id)
 
         await this.updateAccessTokenRepository.updateAccessToken(
-          account._id,
+          account.id,
           accessToken
         )
 
-        const { _id } = account
-
-        delete account._id
-
-        return transformeAccountModel({
-          ...account,
-          id: _id,
-          token: accessToken
-        })
+        return transformeAccountModel({ ...account, token: accessToken })
       }
     }
     return null

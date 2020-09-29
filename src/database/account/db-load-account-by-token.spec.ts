@@ -1,5 +1,5 @@
 import {
-  IAccountModel,
+  IAccount,
   ILoadAccountByTokenRepository,
   ITokenDecrypter
 } from '../../helpers/interfaces'
@@ -25,15 +25,15 @@ const makeLoadAccountByTokenRepository = (
 ): ILoadAccountByTokenRepository => {
   class LoadAccountByTokenRepositoryStub
     implements ILoadAccountByTokenRepository {
-    async loadByToken(token: string, role?: string): Promise<IAccountModel> {
+    async loadByToken(token: string, role?: string): Promise<IAccount> {
       return new Promise((resolve) => resolve(makeFakeAccount(timestamp)))
     }
   }
   return new LoadAccountByTokenRepositoryStub()
 }
 
-const makeFakeAccount = (timestamp): IAccountModel => ({
-  id: 'any_id',
+const makeFakeAccount = (timestamp): IAccount => ({
+  _id: 'any_id',
   nome: 'any_nome',
   email: 'any_email@mail.com',
   senha: 'any_hashed',

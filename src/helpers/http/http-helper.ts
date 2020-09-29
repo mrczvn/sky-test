@@ -8,7 +8,7 @@ export const serverError = (): IHttpResponse => ({
 
 export const badRequest = (error: Error): IHttpResponse => ({
   'código de status': 400,
-  mensagem: error
+  mensagem: error.message
 })
 
 export const unauthorized = (): IHttpResponse => ({
@@ -18,7 +18,7 @@ export const unauthorized = (): IHttpResponse => ({
 
 export const forbidden = (error: Error): IHttpResponse => ({
   'código de status': 403,
-  mensagem: error
+  mensagem: error.message
 })
 
 export const ok = (data: any): IHttpResponse => ({

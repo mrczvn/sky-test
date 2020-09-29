@@ -10,9 +10,7 @@ export const compareDate = (data: Date, dateToCompare: Date): boolean => {
 
     const minutes = Math.ceil(differenceMilliseconds / (1000 * 60))
 
-    if (minutes > 30) return true
-
-    return false
+    if (minutes <= 30) return false
   }
 
   return true

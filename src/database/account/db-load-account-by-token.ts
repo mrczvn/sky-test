@@ -1,5 +1,5 @@
 import {
-  IAccountModel,
+  IAccount,
   ILoadAccountByToken,
   ILoadAccountByTokenRepository,
   ITokenDecrypter
@@ -11,15 +11,13 @@ export class DbLoadAccountByToken implements ILoadAccountByToken {
     private readonly loadAccountByTokenRepository: ILoadAccountByTokenRepository
   ) {}
 
-  async load(accessToken: string, role?: string): Promise<IAccountModel> {
+  async load(accessToken: string, role?: string): Promise<IAccount> {
     const token = await this.decrypter.decrypt(accessToken)
     if (token) {
       const account = await this.loadAccountByTokenRepository.loadByToken(
         accessToken,
         role
       )
-
-      if (!account) return null
 
       return account
     }

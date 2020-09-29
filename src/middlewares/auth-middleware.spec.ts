@@ -1,7 +1,7 @@
 import { AccessDeniedError } from '../helpers/errors/access-denied-error'
 import { forbidden, ok, serverError } from '../helpers/http'
 import {
-  IAccountModel,
+  IAccount,
   IHttpRequest,
   ILoadAccountByToken
 } from '../helpers/interfaces'
@@ -14,7 +14,7 @@ interface SutTypes {
 
 const makeLoadAccountByToken = (timestamp): ILoadAccountByToken => {
   class LoadAccounByTokenStub implements ILoadAccountByToken {
-    async load(accessToken: string, role?: string): Promise<IAccountModel> {
+    async load(accessToken: string, role?: string): Promise<IAccount> {
       return new Promise((resolve) => resolve(makeFakeAccount(timestamp)))
     }
   }
@@ -25,8 +25,8 @@ const makeFakeRequest = (): IHttpRequest => ({
   headers: { authorization: 'Bearer any_token' }
 })
 
-const makeFakeAccount = (timestamp): IAccountModel => ({
-  id: 'any_id',
+const makeFakeAccount = (timestamp): IAccount => ({
+  _id: 'any_id',
   nome: 'any_nome',
   email: 'any_email@mail.com',
   senha: 'any_senha',
