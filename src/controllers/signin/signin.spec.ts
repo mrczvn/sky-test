@@ -1,5 +1,5 @@
 import { ErrorMessage } from '../../helpers/errors'
-import { badRequest, serverError } from '../../helpers/http'
+import { badRequest, serverError, unauthorized } from '../../helpers/http'
 import {
   IAccount,
   IAccountModel,
@@ -115,5 +115,15 @@ describe('SignUp Controller', () => {
       httpRequest.body.email,
       httpRequest.body.senha
     )
+  })
+
+  test('Should return 401 if Authentication returns null', async () => {
+    const { sut, authenticationStub } = makeSut()
+
+    jest.spyOn(authenticationStub, 'auth').mockResolvedValueOnce(null)
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(unauthorized())
   })
 })
