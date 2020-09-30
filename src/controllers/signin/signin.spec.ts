@@ -1,6 +1,7 @@
 import { ErrorMessage } from '../../helpers/errors'
-import { badRequest, ok, unauthorized } from '../../helpers/http'
+import { badRequest, serverError } from '../../helpers/http'
 import {
+  IAccount,
   IAccountModel,
   IHttpRequest,
   IValidation
@@ -27,7 +28,7 @@ const makeValidation = (): IValidation => {
 const makeAuthentication = (): IAuthentication => {
   class AuthenticationStub implements IAuthentication {
     async auth(email: string, password: string): Promise<IAccountModel> {
-      return null
+      return transformeAccountModel(makeFakeAccount())
     }
   }
   return new AuthenticationStub()
@@ -42,6 +43,21 @@ const makeFakeRequest = (): IHttpRequest => ({
   }
 })
 
+const makeFakeAccount = (
+  creationDate = new Date('2020-09-29 12:00'),
+  dataUpdate = new Date('2020-09-29 12:00')
+): IAccount => ({
+  id: 'any_id',
+  nome: 'any_nome',
+  email: 'any_email@mail.com',
+  senha: 'any_senha',
+  telefones: [{ ddd: 11, numero: 123456789 }],
+  data_criacao: creationDate,
+  data_atualizacao: dataUpdate,
+  ultimo_login: dataUpdate,
+  token: 'any_token'
+})
+
 const makeSut = (): SutTypes => {
   const validationStub = makeValidation()
   const authenticationStub = makeAuthentication()
@@ -52,19 +68,7 @@ const makeSut = (): SutTypes => {
 }
 
 describe('SignUp Controller', () => {
-  test('Should return 400 if Validation returns an error', async () => {
-    const { sut, validationStub } = makeSut()
-
-    jest
-      .spyOn(validationStub, 'validate')
-      .mockReturnValueOnce(new ErrorMessage())
-
-    const httpResponse = await sut.handle(makeFakeRequest())
-
-    expect(httpResponse).toEqual(badRequest(new ErrorMessage()))
-  })
-
-  test('Should call Validation with correct value', async () => {
+  test('Should call Validation with correct values', async () => {
     const { sut, validationStub } = makeSut()
 
     const validateSpy = jest.spyOn(validationStub, 'validate')
@@ -76,53 +80,40 @@ describe('SignUp Controller', () => {
     expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
   })
 
-  test('Should return 401 if Authentication returns null', async () => {
-    const { sut } = makeSut()
+  test('Should return 400 if Validation returns an error', async () => {
+    const { sut, validationStub } = makeSut()
+
+    jest.spyOn(validationStub, 'validate').mockReturnValueOnce(new Error())
 
     const httpResponse = await sut.handle(makeFakeRequest())
 
-    expect(httpResponse).toEqual(unauthorized())
+    expect(httpResponse).toEqual(badRequest(new ErrorMessage()))
+  })
+
+  test('Should return 500 if Validation throws', async () => {
+    const { sut, validationStub } = makeSut()
+
+    jest.spyOn(validationStub, 'validate').mockImplementationOnce(() => {
+      throw new Error()
+    })
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(serverError())
   })
 
   test('Should call Authenticaton with correct values', async () => {
     const { sut, authenticationStub } = makeSut()
 
-    const addSpy = jest.spyOn(authenticationStub, 'auth')
+    const authSpy = jest.spyOn(authenticationStub, 'auth')
 
     const httpRequest = makeFakeRequest()
 
     await sut.handle(httpRequest)
 
-    expect(addSpy).toHaveBeenCalledWith(
+    expect(authSpy).toHaveBeenCalledWith(
       httpRequest.body.email,
       httpRequest.body.senha
     )
-  })
-
-  test('Should return 200 if account is authenticate', async () => {
-    const { sut, authenticationStub } = makeSut()
-
-    const date = new Date()
-
-    const account = {
-      id: 'any_id',
-      nome: 'any_nome',
-      email: 'any_email@mail.com',
-      senha: 'any_senha',
-      telefones: [{ ddd: 11, numero: 123456789 }],
-      data_criacao: date,
-      data_atualizacao: date,
-      ultimo_login: date,
-      token: 'any_token'
-    }
-    jest
-      .spyOn(authenticationStub, 'auth')
-      .mockResolvedValueOnce(transformeAccountModel(account))
-
-    const httpRequest = makeFakeRequest()
-
-    const httpResponse = await sut.handle(httpRequest)
-
-    expect(httpResponse).toEqual(ok(transformeAccountModel(account)))
   })
 })
