@@ -2,12 +2,14 @@ import { AccessDeniedError } from '../../helpers/errors/access-denied-error'
 import { forbidden, ok, serverError } from '../../helpers/http'
 import { IAccount, IHttpRequest } from '../../helpers/interfaces'
 import { ILoadAccountById } from '../../helpers/interfaces/db/load-account-by-id'
+import { ICompareDateByMinutes } from '../../helpers/interfaces/validators/data-fns'
 import { transformeAccountModel } from '../../utils/transforme-account-model'
 import { GetAccountController } from './get-account'
 
 interface SutTypes {
   sut: GetAccountController
   loadAccountByIdStub: ILoadAccountById
+  compareDateStub: ICompareDateByMinutes
 }
 
 const makeLoadAccountById = (): ILoadAccountById => {
@@ -17,6 +19,15 @@ const makeLoadAccountById = (): ILoadAccountById => {
     }
   }
   return new LoadAccountByIdStub()
+}
+
+const makeCompareDate = (): ICompareDateByMinutes => {
+  class CompareDateStub implements ICompareDateByMinutes {
+    compareInMinutes(dateToCompare: Date, date?: Date): boolean {
+      return true
+    }
+  }
+  return new CompareDateStub()
 }
 
 const makeFakeAccount = (
@@ -38,10 +49,11 @@ const makeFakeRequest = (account: IAccount): IHttpRequest => ({ user: account })
 
 const makeSut = (): SutTypes => {
   const loadAccountByIdStub = makeLoadAccountById()
+  const compareDateStub = makeCompareDate()
 
-  const sut = new GetAccountController(loadAccountByIdStub)
+  const sut = new GetAccountController(loadAccountByIdStub, compareDateStub)
 
-  return { sut, loadAccountByIdStub }
+  return { sut, loadAccountByIdStub, compareDateStub }
 }
 
 describe('GetAccount Controller', () => {
@@ -91,5 +103,17 @@ describe('GetAccount Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
 
     expect(httpResponse).toEqual(ok(transformeAccountModel(makeFakeAccount())))
+  })
+
+  test('Should call CompareDate with correct values', async () => {
+    const { sut, compareDateStub } = makeSut()
+
+    const loadByIdSpy = jest.spyOn(compareDateStub, 'compareInMinutes')
+
+    const httpRequest = makeFakeRequest(makeFakeAccount())
+
+    await sut.handle(httpRequest)
+
+    expect(loadByIdSpy).toHaveBeenCalledWith(httpRequest.user.ultimo_login)
   })
 })

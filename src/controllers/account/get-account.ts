@@ -6,20 +6,23 @@ import {
   IHttpResponse
 } from '../../helpers/interfaces'
 import { ILoadAccountById } from '../../helpers/interfaces/db/load-account-by-id'
-import { compareDate } from '../../utils/compare-date'
+import { ICompareDateByMinutes } from '../../helpers/interfaces/validators/data-fns'
 import { transformeAccountModel } from '../../utils/transforme-account-model'
 
 export class GetAccountController implements IController {
-  constructor(private readonly loadAccountById: ILoadAccountById) {}
+  constructor(
+    private readonly loadAccountById: ILoadAccountById,
+    private readonly compareDate: ICompareDateByMinutes
+  ) {}
 
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
     try {
       const account = await this.loadAccountById.loadById(req.user.id)
 
       if (account) {
-        const atThisMoment = new Date()
-
-        const differenceDate = compareDate(atThisMoment, account.ultimo_login)
+        const differenceDate = this.compareDate.compareInMinutes(
+          account.ultimo_login
+        )
 
         if (differenceDate) return ok(transformeAccountModel(account))
       }
