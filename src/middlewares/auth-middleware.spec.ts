@@ -26,7 +26,7 @@ const makeFakeRequest = (): IHttpRequest => ({
 })
 
 const makeFakeAccount = (timestamp): IAccount => ({
-  _id: 'any_id',
+  id: 'any_id',
   nome: 'any_nome',
   email: 'any_email@mail.com',
   senha: 'any_senha',
@@ -78,16 +78,6 @@ describe('Auth Middleware', () => {
     )
   })
 
-  test('Should return 200 if LoadAccountByToken returns an account', async () => {
-    const date = new Date()
-
-    const { sut } = makeSut(date)
-
-    const httpResponse = await sut.handle(makeFakeRequest())
-
-    expect(httpResponse).toEqual(ok({ user: makeFakeAccount(date) }))
-  })
-
   test('Should throw if LoadAccountByToken throws', async () => {
     const { sut, loadAccounByTokenStub } = makeSut()
 
@@ -98,5 +88,15 @@ describe('Auth Middleware', () => {
     const httpResponse = await sut.handle(makeFakeRequest())
 
     expect(httpResponse).toEqual(serverError())
+  })
+
+  test('Should return 200 if LoadAccountByToken returns an account', async () => {
+    const date = new Date()
+
+    const { sut } = makeSut(date)
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(ok({ accountId: makeFakeAccount(date).id }))
   })
 })

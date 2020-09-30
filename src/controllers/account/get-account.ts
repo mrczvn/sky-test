@@ -17,7 +17,7 @@ export class GetAccountController implements IController {
 
   async handle(req: IHttpRequest): Promise<IHttpResponse> {
     try {
-      const account = await this.loadAccountById.loadById(req.user.id)
+      const account = await this.loadAccountById.loadById(req.accountId)
 
       if (account) {
         const differenceDate = this.compareDate.compareInMinutes(

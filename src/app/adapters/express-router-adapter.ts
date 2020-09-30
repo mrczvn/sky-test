@@ -5,7 +5,7 @@ export const adaptRoute = (controller: IController) => async (
   req: Request,
   res: Response
 ) => {
-  const httpRequest: IHttpRequest = { body: req.body, user: req.user }
+  const httpRequest: IHttpRequest = { body: req.body, accountId: req.accountId }
 
   const httpResponse = await controller.handle(httpRequest)
 

@@ -6,5 +6,5 @@ export interface IHttpResponse {
 export interface IHttpRequest {
   body?: any
   headers?: any
-  user?: any
+  accountId?: any
 }

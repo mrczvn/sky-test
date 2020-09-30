@@ -19,7 +19,7 @@ export class AuthMiddleware implements IMiddleware {
 
         const account = await this.loadAccountByToken.load(accessToken)
 
-        if (account) return ok({ user: account })
+        if (account) return ok({ accountId: account.id })
       }
       return forbidden(new AccessDeniedError('Não autorizado'))
     } catch (error) {
