@@ -1,5 +1,5 @@
 import { ErrorMessage } from '../../helpers/errors'
-import { badRequest, serverError, unauthorized } from '../../helpers/http'
+import { badRequest, ok, serverError, unauthorized } from '../../helpers/http'
 import {
   IAccount,
   IAccountModel,
@@ -137,5 +137,13 @@ describe('SignUp Controller', () => {
     const httpRequest = await sut.handle(makeFakeRequest())
 
     expect(httpRequest).toEqual(serverError())
+  })
+
+  test('Should return an account on success', async () => {
+    const { sut } = makeSut()
+
+    const httpResponse = await sut.handle(makeFakeRequest())
+
+    expect(httpResponse).toEqual(ok(transformeAccountModel(makeFakeAccount())))
   })
 })
