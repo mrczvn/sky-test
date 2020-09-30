@@ -45,7 +45,9 @@ const makeFakeAccount = (
   token: 'any_token'
 })
 
-const makeFakeRequest = (account: IAccount): IHttpRequest => ({ user: account })
+const makeFakeRequest = (account: IAccount): IHttpRequest => ({
+  accountId: account
+})
 
 const makeSut = (): SutTypes => {
   const loadAccountByIdStub = makeLoadAccountById()
@@ -66,7 +68,7 @@ describe('GetAccount Controller', () => {
 
     await sut.handle(httpRequest)
 
-    expect(loadByIdSpy).toHaveBeenCalledWith(httpRequest.user.id)
+    expect(loadByIdSpy).toHaveBeenCalledWith(httpRequest.accountId)
   })
 
   test('Should return 403 if LoadAccountById returns null', async () => {
@@ -96,13 +98,13 @@ describe('GetAccount Controller', () => {
   test('Should call CompareDate with correct values', async () => {
     const { sut, compareDateStub } = makeSut()
 
-    const loadByIdSpy = jest.spyOn(compareDateStub, 'compareInMinutes')
+    const compareInMinutesSpy = jest.spyOn(compareDateStub, 'compareInMinutes')
 
-    const httpRequest = makeFakeRequest(makeFakeAccount())
+    const fakeAccount = makeFakeAccount()
 
-    await sut.handle(httpRequest)
+    await sut.handle(makeFakeRequest(fakeAccount))
 
-    expect(loadByIdSpy).toHaveBeenCalledWith(httpRequest.user.ultimo_login)
+    expect(compareInMinutesSpy).toHaveBeenCalledWith(fakeAccount.ultimo_login)
   })
 
   test('Should return 403 if CompareDate returns false', async () => {

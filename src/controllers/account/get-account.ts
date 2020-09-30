@@ -26,7 +26,6 @@ export class GetAccountController implements IController {
 
         if (differenceDate) return ok(transformeAccountModel(account))
       }
-
       return forbidden(new AccessDeniedError('Sessão inválida'))
     } catch (error) {
       return serverError()
