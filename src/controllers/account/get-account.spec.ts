@@ -1,5 +1,5 @@
 import { AccessDeniedError } from '../../helpers/errors/access-denied-error'
-import { forbidden } from '../../helpers/http'
+import { forbidden, serverError } from '../../helpers/http'
 import { IAccount, IHttpRequest } from '../../helpers/interfaces'
 import { ILoadAccountById } from '../../helpers/interfaces/db/load-account-by-id'
 import { GetAccountController } from './get-account'
@@ -68,5 +68,17 @@ describe('GetAccount Controller', () => {
     expect(httpResponse).toEqual(
       forbidden(new AccessDeniedError('Sessão inválida'))
     )
+  })
+
+  test('Should return 500 if LoadAccountById throws', async () => {
+    const { sut, loadAccountByIdStub } = makeSut()
+
+    jest.spyOn(loadAccountByIdStub, 'loadById').mockImplementationOnce(() => {
+      throw new Error()
+    })
+
+    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+
+    expect(httpResponse).toEqual(serverError())
   })
 })
