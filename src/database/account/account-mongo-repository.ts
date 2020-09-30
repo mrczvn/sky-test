@@ -1,9 +1,11 @@
+import { ObjectId } from 'mongodb'
 import {
   IAccount,
   IAccountModel,
   IAddAccountParams,
   IAddAccountRepository,
   ILoadAccountByEmailRepository,
+  ILoadAccountByIdRepository,
   IUpdateAccessTokenRepository
 } from '../../helpers/interfaces/db/account-repository'
 import { IEncrypter } from '../../helpers/interfaces/db/encrypter'
@@ -13,7 +15,8 @@ export class AccountMongoRepository
   implements
     IAddAccountRepository,
     ILoadAccountByEmailRepository,
-    IUpdateAccessTokenRepository {
+    IUpdateAccessTokenRepository,
+    ILoadAccountByIdRepository {
   constructor(private readonly encrypter: IEncrypter) {}
 
   async add(account: IAddAccountParams): Promise<IAccountModel> {
@@ -45,7 +48,7 @@ export class AccountMongoRepository
 
     const account = await accountCollection.findOne({ email })
 
-    return account && MongoHelper.map(account)
+    return account ? MongoHelper.map(account) : account
   }
 
   async updateAccessToken(id: string, token: string): Promise<void> {
@@ -72,6 +75,14 @@ export class AccountMongoRepository
 
     const account = await accountCollection.findOne({ token })
 
-    return account && MongoHelper.map(account)
+    return account ? MongoHelper.map(account) : account
+  }
+
+  async loadById(id: string): Promise<IAccount> {
+    const accountCollection = await MongoHelper.getCollection('accounts')
+
+    const account = await accountCollection.findOne({ _id: new ObjectId(id) })
+
+    return account ? MongoHelper.map(account) : account
   }
 }

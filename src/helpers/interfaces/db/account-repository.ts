@@ -46,5 +46,5 @@ export interface ILoadAccountByTokenRepository {
 }
 
 export interface ILoadAccountByIdRepository {
-  loadById: (id: string) => Promise<IAccountModel>
+  loadById: (id: string) => Promise<IAccount>
 }
