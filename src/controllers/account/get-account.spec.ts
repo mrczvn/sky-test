@@ -93,14 +93,6 @@ describe('GetAccount Controller', () => {
     expect(httpResponse).toEqual(serverError())
   })
 
-  test('Should return an account on success', async () => {
-    const { sut } = makeSut()
-
-    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
-
-    expect(httpResponse).toEqual(ok(transformeAccountModel(makeFakeAccount())))
-  })
-
   test('Should call CompareDate with correct values', async () => {
     const { sut, compareDateStub } = makeSut()
 
@@ -123,5 +115,27 @@ describe('GetAccount Controller', () => {
     expect(httpResponse).toEqual(
       forbidden(new AccessDeniedError('Sessão inválida'))
     )
+  })
+
+  test('Should return 500 if CompareDate throws', async () => {
+    const { sut, compareDateStub } = makeSut()
+
+    jest
+      .spyOn(compareDateStub, 'compareInMinutes')
+      .mockImplementationOnce(() => {
+        throw new Error()
+      })
+
+    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+
+    expect(httpResponse).toEqual(serverError())
+  })
+
+  test('Should return an account on success', async () => {
+    const { sut } = makeSut()
+
+    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+
+    expect(httpResponse).toEqual(ok(transformeAccountModel(makeFakeAccount())))
   })
 })
