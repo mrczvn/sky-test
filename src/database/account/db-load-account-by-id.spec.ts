@@ -55,4 +55,14 @@ describe('DbLoadAccountById', () => {
 
     expect(account).toBe(null)
   })
+
+  test('Should return account on success', async () => {
+    const date = new Date()
+
+    const { sut } = makeSut(date)
+
+    const account = await sut.loadById('any_id')
+
+    expect(account).toEqual(makeFakeAccount(date))
+  })
 })
