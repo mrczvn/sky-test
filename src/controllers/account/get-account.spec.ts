@@ -1,7 +1,8 @@
 import { AccessDeniedError } from '../../helpers/errors/access-denied-error'
-import { forbidden, serverError } from '../../helpers/http'
+import { forbidden, ok, serverError } from '../../helpers/http'
 import { IAccount, IHttpRequest } from '../../helpers/interfaces'
 import { ILoadAccountById } from '../../helpers/interfaces/db/load-account-by-id'
+import { transformeAccountModel } from '../../utils/transforme-account-model'
 import { GetAccountController } from './get-account'
 
 interface SutTypes {
@@ -80,5 +81,15 @@ describe('GetAccount Controller', () => {
     const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
 
     expect(httpResponse).toEqual(serverError())
+  })
+
+  test('Should return an account on success', async () => {
+    const { sut } = makeSut()
+
+    const httpRequest = makeFakeRequest(makeFakeAccount())
+
+    const httpResponse = await sut.handle(httpRequest)
+
+    expect(httpResponse).toEqual(ok(transformeAccountModel(makeFakeAccount())))
   })
 })
