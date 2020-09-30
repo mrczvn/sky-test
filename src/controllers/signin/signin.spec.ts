@@ -45,7 +45,7 @@ const makeFakeRequest = (): IHttpRequest => ({
 
 const makeFakeAccount = (
   creationDate = new Date('2020-09-29 12:00'),
-  dataUpdate = new Date('2020-09-29 12:00')
+  dataUpdate = new Date('2020-09-29 14:00')
 ): IAccount => ({
   id: 'any_id',
   nome: 'any_nome',

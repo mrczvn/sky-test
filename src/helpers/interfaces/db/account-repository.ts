@@ -30,7 +30,7 @@ export interface IAccountModel {
 }
 
 export interface IAddAccountRepository {
-  add: (account: IAddAccountParams) => Promise<IAccountModel>
+  add: (account: IAddAccountParams) => Promise<IAccount>
 }
 
 export interface ILoadAccountByEmailRepository {

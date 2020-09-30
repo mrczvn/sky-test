@@ -1,7 +1,6 @@
 import { ObjectId } from 'mongodb'
 import {
   IAccount,
-  IAccountModel,
   IAddAccountParams,
   IAddAccountRepository,
   ILoadAccountByEmailRepository,
@@ -19,7 +18,7 @@ export class AccountMongoRepository
     ILoadAccountByIdRepository {
   constructor(private readonly encrypter: IEncrypter) {}
 
-  async add(account: IAddAccountParams): Promise<IAccountModel> {
+  async add(account: IAddAccountParams): Promise<IAccount> {
     const emailInUse = await this.loadByEmail(account.email)
 
     if (emailInUse) return null
