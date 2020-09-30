@@ -3,6 +3,7 @@ import { AccountMongoRepository } from '../../database/account/account-mongo-rep
 import { DbLoadAccountById } from '../../database/account/db-load-account-by-id'
 import { BcryptAdapter } from '../../database/criptography/bcrypt-adapter/bcrypt-adapter'
 import { IController } from '../../helpers/interfaces'
+import { DataFns } from '../../helpers/validators/data-fns'
 
 export const makeGetAccountController = (): IController => {
   const salt = 12
@@ -13,5 +14,7 @@ export const makeGetAccountController = (): IController => {
 
   const dbLoadAccountById = new DbLoadAccountById(accountMongoRepository)
 
-  return new GetAccountController(dbLoadAccountById)
+  const compareDate = new DataFns()
+
+  return new GetAccountController(dbLoadAccountById, compareDate)
 }
