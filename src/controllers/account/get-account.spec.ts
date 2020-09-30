@@ -74,9 +74,7 @@ describe('GetAccount Controller', () => {
 
     jest.spyOn(loadAccountByIdStub, 'loadById').mockResolvedValueOnce(null)
 
-    const httpRequest = makeFakeRequest(makeFakeAccount())
-
-    const httpResponse = await sut.handle(httpRequest)
+    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
 
     expect(httpResponse).toEqual(
       forbidden(new AccessDeniedError('Sessão inválida'))
@@ -98,9 +96,7 @@ describe('GetAccount Controller', () => {
   test('Should return an account on success', async () => {
     const { sut } = makeSut()
 
-    const httpRequest = makeFakeRequest(makeFakeAccount())
-
-    const httpResponse = await sut.handle(httpRequest)
+    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
 
     expect(httpResponse).toEqual(ok(transformeAccountModel(makeFakeAccount())))
   })
@@ -115,5 +111,17 @@ describe('GetAccount Controller', () => {
     await sut.handle(httpRequest)
 
     expect(loadByIdSpy).toHaveBeenCalledWith(httpRequest.user.ultimo_login)
+  })
+
+  test('Should return 403 if CompareDate returns false', async () => {
+    const { sut, compareDateStub } = makeSut()
+
+    jest.spyOn(compareDateStub, 'compareInMinutes').mockReturnValueOnce(false)
+
+    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+
+    expect(httpResponse).toEqual(
+      forbidden(new AccessDeniedError('Sessão inválida'))
+    )
   })
 })
