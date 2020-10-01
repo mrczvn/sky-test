@@ -1,4 +1,4 @@
-import { IAccountModel } from '../helpers/interfaces'
+import { IAccountModel } from '@/helpers/interfaces'
 import { dateToString } from './date-to-string'
 
 export const transformeAccountModel = (account): IAccountModel => ({

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { IHttpRequest, IMiddleware } from '../../helpers/interfaces'
+import { IHttpRequest, IMiddleware } from '@/helpers/interfaces'
 
 export const adaptMiddleware = (middleware: IMiddleware) => async (
   req: Request,

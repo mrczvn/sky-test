@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { ICompare, IEncrypter } from '../../../helpers/interfaces/db/encrypter'
+import { ICompare, IEncrypter } from '@/helpers/interfaces'
 
 export class BcryptAdapter implements IEncrypter, ICompare {
   private readonly salt: number

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { IController, IHttpRequest } from '../../helpers/interfaces'
+import { IController, IHttpRequest } from '@/helpers/interfaces'
 
 export const adaptRoute = (controller: IController) => async (
   req: Request,

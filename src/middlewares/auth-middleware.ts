@@ -1,11 +1,11 @@
-import { AccessDeniedError } from '../helpers/errors/access-denied-error'
-import { forbidden, ok, serverError } from '../helpers/http'
 import {
   IHttpRequest,
   IHttpResponse,
-  ILoadAccountByToken,
-  IMiddleware
-} from '../helpers/interfaces'
+  IMiddleware,
+  ILoadAccountByToken
+} from './auth-middleware-interfaces'
+import { forbidden, ok, serverError } from '@/helpers/http'
+import { AccessDeniedError } from '@/helpers/errors'
 
 export class AuthMiddleware implements IMiddleware {
   constructor(private readonly loadAccountByToken: ILoadAccountByToken) {}

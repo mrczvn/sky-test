@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { sign } from 'jsonwebtoken'
 import { Collection } from 'mongodb'
-import { MongoHelper } from '../../database/mongo-helper'
+import { MongoHelper } from '@/database/mongodb/helpers/mongo-helper'
 import app from '../app'
 
 let accountCollection: Collection

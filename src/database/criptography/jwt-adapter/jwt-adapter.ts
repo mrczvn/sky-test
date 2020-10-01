@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { ITokenEncrypter, ITokenDecrypter } from '../../../helpers/interfaces'
+import { ITokenEncrypter, ITokenDecrypter } from '@/helpers/interfaces'
 
 export class JwtAdapter implements ITokenEncrypter, ITokenDecrypter {
   private readonly secret: string

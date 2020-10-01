@@ -1,11 +1,11 @@
-import { AccessDeniedError } from '../helpers/errors/access-denied-error'
-import { forbidden, ok, serverError } from '../helpers/http'
 import {
-  IAccount,
   IHttpRequest,
-  ILoadAccountByToken
-} from '../helpers/interfaces'
+  ILoadAccountByToken,
+  IAccount
+} from './auth-middleware-interfaces'
 import { AuthMiddleware } from './auth-middleware'
+import { forbidden, ok, serverError } from '@/helpers/http'
+import { AccessDeniedError } from '@/helpers/errors'
 
 interface SutTypes {
   sut: AuthMiddleware
