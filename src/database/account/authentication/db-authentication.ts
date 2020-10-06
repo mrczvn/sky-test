@@ -1,13 +1,13 @@
 import {
   IAuthentication,
-  ILoadAccountByEmailRepository,
   ICompare,
   ITokenEncrypter,
-  IUpdateAccessTokenRepository,
   IAccountModel
 } from './db-authentication-interfaces'
 
 import { transformeAccountModel } from '@/utils/transforme-account-model'
+import { ILoadAccountByEmailRepository } from '@/helpers/interfaces/database/mongodb/mongo-load-account-by-email-repository'
+import { IUpdateAccessTokenRepository } from '@/helpers/interfaces/database/mongodb/mongo-update-access-token-repository'
 
 export class DbAuthentication implements IAuthentication {
   constructor(

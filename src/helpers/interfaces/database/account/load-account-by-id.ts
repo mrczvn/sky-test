@@ -1,5 +1,5 @@
-import { IAccount } from '../mongodb/mongo-account-repository'
+import { IAccountRepository } from '../mongodb/mongo-account-repository'
 
 export interface ILoadAccountById {
-  loadById: (id: string) => Promise<IAccount>
+  loadById: (id: string) => Promise<IAccountRepository>
 }

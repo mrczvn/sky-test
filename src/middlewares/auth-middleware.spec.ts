@@ -1,51 +1,29 @@
-import {
-  IHttpRequest,
-  ILoadAccountByToken,
-  IAccount
-} from './auth-middleware-interfaces'
+import { IHttpRequest } from './auth-middleware-interfaces'
 import { AuthMiddleware } from './auth-middleware'
 import { forbidden, ok, serverError } from '@/helpers/http'
 import { AccessDeniedError } from '@/helpers/errors'
+import { LoadAccounByTokenSpy, throwError } from '@/test'
 
 interface SutTypes {
   sut: AuthMiddleware
-  loadAccounByTokenStub: ILoadAccountByToken
+  loadAccounByTokenSpy: LoadAccounByTokenSpy
 }
 
-const makeLoadAccountByToken = (timestamp): ILoadAccountByToken => {
-  class LoadAccounByTokenStub implements ILoadAccountByToken {
-    async load(accessToken: string, role?: string): Promise<IAccount> {
-      return new Promise((resolve) => resolve(makeFakeAccount(timestamp)))
-    }
-  }
-  return new LoadAccounByTokenStub()
-}
-
-const makeFakeRequest = (): IHttpRequest => ({
+const mockRequest = (): IHttpRequest => ({
   headers: { authorization: 'Bearer any_token' }
 })
 
-const makeFakeAccount = (timestamp): IAccount => ({
-  id: 'any_id',
-  nome: 'any_nome',
-  email: 'any_email@mail.com',
-  senha: 'any_senha',
-  telefones: [{ ddd: 11, numero: 123456789 }],
-  data_criacao: timestamp,
-  data_atualizacao: timestamp,
-  ultimo_login: timestamp,
-  token: 'any_token'
-})
+const makeSut = (): SutTypes => {
+  const loadAccounByTokenSpy = new LoadAccounByTokenSpy()
 
-const makeSut = (timestamp = new Date()): SutTypes => {
-  const loadAccounByTokenStub = makeLoadAccountByToken(timestamp)
+  const sut = new AuthMiddleware(loadAccounByTokenSpy)
 
-  const sut = new AuthMiddleware(loadAccounByTokenStub)
-
-  return { sut, loadAccounByTokenStub }
+  return { sut, loadAccounByTokenSpy }
 }
 
 describe('Auth Middleware', () => {
+  const mockFakeRequest = mockRequest()
+
   test('Should return 403 if no authorization exists in headers', async () => {
     const { sut } = makeSut()
 
@@ -57,21 +35,21 @@ describe('Auth Middleware', () => {
   })
 
   test('Should call LoadAccountByToken with correct accessToken', async () => {
-    const { sut, loadAccounByTokenStub } = makeSut()
+    const { sut, loadAccounByTokenSpy } = makeSut()
 
-    const loadSpy = jest.spyOn(loadAccounByTokenStub, 'load')
+    await sut.handle(mockFakeRequest)
 
-    await sut.handle(makeFakeRequest())
+    const [, token] = mockFakeRequest.headers.authorization.split(' ')
 
-    expect(loadSpy).toHaveBeenCalledWith('any_token')
+    expect(loadAccounByTokenSpy.accessToken).toBe(token)
   })
 
   test('Should return 403 if LoadAccountByToken returns null', async () => {
-    const { sut, loadAccounByTokenStub } = makeSut()
+    const { sut, loadAccounByTokenSpy } = makeSut()
 
-    jest.spyOn(loadAccounByTokenStub, 'load').mockResolvedValueOnce(null)
+    loadAccounByTokenSpy.account = null
 
-    const httpResponse = await sut.handle({})
+    const httpResponse = await sut.handle(mockFakeRequest)
 
     expect(httpResponse).toEqual(
       forbidden(new AccessDeniedError('Não autorizado'))
@@ -79,24 +57,22 @@ describe('Auth Middleware', () => {
   })
 
   test('Should throw if LoadAccountByToken throws', async () => {
-    const { sut, loadAccounByTokenStub } = makeSut()
+    const { sut, loadAccounByTokenSpy } = makeSut()
 
-    jest.spyOn(loadAccounByTokenStub, 'load').mockImplementationOnce(() => {
-      throw new Error()
-    })
+    jest.spyOn(loadAccounByTokenSpy, 'load').mockImplementationOnce(throwError)
 
-    const httpResponse = await sut.handle(makeFakeRequest())
+    const httpResponse = await sut.handle(mockFakeRequest)
 
     expect(httpResponse).toEqual(serverError())
   })
 
-  test('Should return 200 if LoadAccountByToken returns an account', async () => {
-    const date = new Date()
+  test('Should return an accountId on success', async () => {
+    const { sut, loadAccounByTokenSpy } = makeSut()
 
-    const { sut } = makeSut(date)
+    const httpResponse = await sut.handle(mockFakeRequest)
 
-    const httpResponse = await sut.handle(makeFakeRequest())
-
-    expect(httpResponse).toEqual(ok({ accountId: makeFakeAccount(date).id }))
+    expect(httpResponse).toEqual(
+      ok({ accountId: loadAccounByTokenSpy.account.id })
+    )
   })
 })

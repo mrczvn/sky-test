@@ -1,8 +1,9 @@
 import {
   IHttpRequest,
-  ILoadAccountById,
-  ICompareDateByMinutes,
-  IAccount
+  CompareDateSpy,
+  LoadAccountByIdSpy,
+  mockAccount,
+  throwError
 } from './get-account-controller-interfaces'
 import { GetAccountController } from './get-account-controller'
 import { forbidden, ok, serverError } from '@/helpers/http'
@@ -11,75 +12,38 @@ import { transformeAccountModel } from '@/utils/transforme-account-model'
 
 interface SutTypes {
   sut: GetAccountController
-  loadAccountByIdStub: ILoadAccountById
-  compareDateStub: ICompareDateByMinutes
+  loadAccountByIdSpy: LoadAccountByIdSpy
+  compareDateSpy: CompareDateSpy
 }
 
-const makeLoadAccountById = (): ILoadAccountById => {
-  class LoadAccountByIdStub implements ILoadAccountById {
-    async loadById(id: string): Promise<IAccount> {
-      return new Promise((resolve) => resolve(makeFakeAccount()))
-    }
-  }
-  return new LoadAccountByIdStub()
-}
+const mockRequest = (): IHttpRequest => ({ accountId: mockAccount().id })
 
-const makeCompareDate = (): ICompareDateByMinutes => {
-  class CompareDateStub implements ICompareDateByMinutes {
-    compareInMinutes(dateToCompare: Date, date?: Date): boolean {
-      return true
-    }
-  }
-  return new CompareDateStub()
-}
-
-const makeFakeAccount = (
-  creationDate = new Date('2020-09-29 12:00'),
-  dataUpdate = new Date('2020-09-29 14:00')
-): IAccount => ({
-  id: 'any_id',
-  nome: 'any_nome',
-  email: 'any_email@mail.com',
-  senha: 'any_senha',
-  telefones: [{ ddd: 11, numero: 123456789 }],
-  data_criacao: creationDate,
-  data_atualizacao: dataUpdate,
-  ultimo_login: dataUpdate,
-  token: 'any_token'
-})
-
-const makeFakeRequest = (account: IAccount): IHttpRequest => ({
-  accountId: account
-})
+const makeRequest = mockRequest()
 
 const makeSut = (): SutTypes => {
-  const loadAccountByIdStub = makeLoadAccountById()
-  const compareDateStub = makeCompareDate()
+  const loadAccountByIdSpy = new LoadAccountByIdSpy()
+  const compareDateSpy = new CompareDateSpy()
 
-  const sut = new GetAccountController(loadAccountByIdStub, compareDateStub)
+  const sut = new GetAccountController(loadAccountByIdSpy, compareDateSpy)
 
-  return { sut, loadAccountByIdStub, compareDateStub }
+  return { sut, loadAccountByIdSpy, compareDateSpy }
 }
 
 describe('GetAccount Controller', () => {
   test('Should call LoadAccountById with correct id', async () => {
-    const { sut, loadAccountByIdStub } = makeSut()
+    const { sut, loadAccountByIdSpy } = makeSut()
 
-    const loadByIdSpy = jest.spyOn(loadAccountByIdStub, 'loadById')
+    await sut.handle(makeRequest)
 
-    const httpRequest = makeFakeRequest(makeFakeAccount())
-
-    await sut.handle(httpRequest)
-
-    expect(loadByIdSpy).toHaveBeenCalledWith(httpRequest.accountId)
+    expect(loadAccountByIdSpy.id).toBe(makeRequest.accountId)
   })
 
   test('Should return 403 if LoadAccountById returns null', async () => {
-    const { sut, loadAccountByIdStub } = makeSut()
+    const { sut, loadAccountByIdSpy } = makeSut()
 
-    jest.spyOn(loadAccountByIdStub, 'loadById').mockResolvedValueOnce(null)
+    loadAccountByIdSpy.account = null
 
-    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+    const httpResponse = await sut.handle(makeRequest)
 
     expect(httpResponse).toEqual(
       forbidden(new AccessDeniedError('Sessão inválida'))
@@ -87,35 +51,33 @@ describe('GetAccount Controller', () => {
   })
 
   test('Should return 500 if LoadAccountById throws', async () => {
-    const { sut, loadAccountByIdStub } = makeSut()
+    const { sut, loadAccountByIdSpy } = makeSut()
 
-    jest.spyOn(loadAccountByIdStub, 'loadById').mockImplementationOnce(() => {
-      throw new Error()
-    })
+    jest
+      .spyOn(loadAccountByIdSpy, 'loadById')
+      .mockImplementationOnce(throwError)
 
-    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+    const httpResponse = await sut.handle(makeRequest)
 
     expect(httpResponse).toEqual(serverError())
   })
 
   test('Should call CompareDate with correct values', async () => {
-    const { sut, compareDateStub } = makeSut()
+    const { sut, loadAccountByIdSpy, compareDateSpy } = makeSut()
 
-    const compareInMinutesSpy = jest.spyOn(compareDateStub, 'compareInMinutes')
+    await sut.handle(makeRequest)
 
-    const fakeAccount = makeFakeAccount()
-
-    await sut.handle(makeFakeRequest(fakeAccount))
-
-    expect(compareInMinutesSpy).toHaveBeenCalledWith(fakeAccount.ultimo_login)
+    expect(loadAccountByIdSpy.account.ultimo_login).toBe(
+      compareDateSpy.dateToCompare
+    )
   })
 
   test('Should return 403 if CompareDate returns false', async () => {
-    const { sut, compareDateStub } = makeSut()
+    const { sut, compareDateSpy } = makeSut()
 
-    jest.spyOn(compareDateStub, 'compareInMinutes').mockReturnValueOnce(false)
+    compareDateSpy.resultComparison = false
 
-    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+    const httpResponse = await sut.handle(makeRequest)
 
     expect(httpResponse).toEqual(
       forbidden(new AccessDeniedError('Sessão inválida'))
@@ -123,24 +85,24 @@ describe('GetAccount Controller', () => {
   })
 
   test('Should return 500 if CompareDate throws', async () => {
-    const { sut, compareDateStub } = makeSut()
+    const { sut, compareDateSpy } = makeSut()
 
     jest
-      .spyOn(compareDateStub, 'compareInMinutes')
-      .mockImplementationOnce(() => {
-        throw new Error()
-      })
+      .spyOn(compareDateSpy, 'compareInMinutes')
+      .mockImplementationOnce(throwError)
 
-    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+    const httpResponse = await sut.handle(makeRequest)
 
     expect(httpResponse).toEqual(serverError())
   })
 
   test('Should return an account on success', async () => {
-    const { sut } = makeSut()
+    const { sut, loadAccountByIdSpy } = makeSut()
 
-    const httpResponse = await sut.handle(makeFakeRequest(makeFakeAccount()))
+    const httpResponse = await sut.handle(makeRequest)
 
-    expect(httpResponse).toEqual(ok(transformeAccountModel(makeFakeAccount())))
+    expect(httpResponse).toEqual(
+      ok(transformeAccountModel(loadAccountByIdSpy.account))
+    )
   })
 })

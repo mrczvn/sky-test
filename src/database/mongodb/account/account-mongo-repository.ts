@@ -1,14 +1,15 @@
 import { ObjectId } from 'mongodb'
-import {
-  IAccount,
-  IAccountWithoutToken,
-  IAddAccountParamsRepository,
-  IAddAccountRepository,
-  ILoadAccountByEmailRepository,
-  ILoadAccountByIdRepository,
-  IUpdateAccessTokenRepository
-} from './account-mongo-repository-interfaces'
+import {} from './account-mongo-repository-interfaces'
 import { MongoHelper } from '../helpers/mongo-helper'
+import { IAccountRepository } from '@/helpers/interfaces'
+import {
+  IAccountWithoutTokenRepository,
+  IAddAccountParamsRepository,
+  IAddAccountRepository
+} from '@/helpers/interfaces/database/mongodb/mongo-add-account-repository'
+import { ILoadAccountByEmailRepository } from '@/helpers/interfaces/database/mongodb/mongo-load-account-by-email-repository'
+import { IUpdateAccessTokenRepository } from '@/helpers/interfaces/database/mongodb/mongo-update-access-token-repository'
+import { ILoadAccountByIdRepository } from '@/helpers/interfaces/database/mongodb/mongo-load-account-by-id-repository'
 
 export class AccountMongoRepository
   implements
@@ -16,7 +17,9 @@ export class AccountMongoRepository
     ILoadAccountByEmailRepository,
     IUpdateAccessTokenRepository,
     ILoadAccountByIdRepository {
-  async add(data: IAddAccountParamsRepository): Promise<IAccountWithoutToken> {
+  async add(
+    data: IAddAccountParamsRepository
+  ): Promise<IAccountWithoutTokenRepository> {
     const accountCollection = await MongoHelper.getCollection('accounts')
 
     const account = await accountCollection.insertOne(data)
@@ -24,7 +27,7 @@ export class AccountMongoRepository
     return MongoHelper.map(account.ops[0])
   }
 
-  async loadByEmail(email: string): Promise<IAccount> {
+  async loadByEmail(email: string): Promise<IAccountRepository> {
     const accountCollection = await MongoHelper.getCollection('accounts')
 
     const account = await accountCollection.findOne({ email })
@@ -51,7 +54,7 @@ export class AccountMongoRepository
     )
   }
 
-  async loadByToken(token: string, role?: string): Promise<IAccount> {
+  async loadByToken(token: string, role?: string): Promise<IAccountRepository> {
     const accountCollection = await MongoHelper.getCollection('accounts')
 
     const account = await accountCollection.findOne({ token })
@@ -59,7 +62,7 @@ export class AccountMongoRepository
     return account ? MongoHelper.map(account) : account
   }
 
-  async loadById(id: string): Promise<IAccount> {
+  async loadById(id: string): Promise<IAccountRepository> {
     const accountCollection = await MongoHelper.getCollection('accounts')
 
     const account = await accountCollection.findOne({ _id: new ObjectId(id) })

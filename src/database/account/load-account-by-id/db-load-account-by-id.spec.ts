@@ -1,83 +1,61 @@
 import {
-  ILoadAccountByIdRepository,
-  IAccount
-} from './db-load-account-by-id-interfaces'
+  mockLoadAccountByIdParams,
+  throwError
+} from '../authentication/db-authentication-interfaces'
 import { DbLoadAccountById } from './db-load-account-by-id'
+import { LoadAccountByIdRepositorySpy } from './db-load-account-by-id-interfaces'
 
 interface SutTypes {
   sut: DbLoadAccountById
-  loadAccountByIdStub: ILoadAccountByIdRepository
+  loadAccountByIdSpy: LoadAccountByIdRepositorySpy
 }
 
-const makeLoadAccountById = (timestamps): ILoadAccountByIdRepository => {
-  class LoadAccountByIdStub implements ILoadAccountByIdRepository {
-    async loadById(id: string): Promise<IAccount> {
-      return new Promise((resolve) => resolve(makeFakeAccount(timestamps)))
-    }
-  }
-  return new LoadAccountByIdStub()
-}
+const makeSut = (): SutTypes => {
+  const loadAccountByIdSpy = new LoadAccountByIdRepositorySpy()
 
-const makeFakeAccount = (timestamps): IAccount => ({
-  id: 'any_id',
-  nome: 'any_nome',
-  email: 'any_email@mail.com',
-  senha: 'any_hashed',
-  telefones: [{ numero: 123456789, ddd: 11 }],
-  data_criacao: timestamps,
-  data_atualizacao: timestamps,
-  ultimo_login: timestamps,
-  token: 'any_token'
-})
+  const sut = new DbLoadAccountById(loadAccountByIdSpy)
 
-const makeSut = (timestamps = new Date()): SutTypes => {
-  const loadAccountByIdStub = makeLoadAccountById(timestamps)
-
-  const sut = new DbLoadAccountById(loadAccountByIdStub)
-
-  return { sut, loadAccountByIdStub }
+  return { sut, loadAccountByIdSpy }
 }
 
 describe('DbLoadAccountById', () => {
+  const loadAccountByIdParams = mockLoadAccountByIdParams()
+
   test('Should call LoadAccountByIdRepository with correct id', async () => {
-    const { sut, loadAccountByIdStub } = makeSut()
+    const { sut, loadAccountByIdSpy } = makeSut()
 
-    const loadByIdSpy = jest.spyOn(loadAccountByIdStub, 'loadById')
+    await sut.loadById(loadAccountByIdParams)
 
-    await sut.loadById('any_id')
-
-    expect(loadByIdSpy).toHaveBeenCalledWith('any_id')
+    expect(loadAccountByIdSpy.id).toBe(loadAccountByIdParams)
   })
 
   test('Should return null if LoadAccountByIdRepository returns null', async () => {
-    const { sut, loadAccountByIdStub } = makeSut()
+    const { sut, loadAccountByIdSpy } = makeSut()
 
-    jest.spyOn(loadAccountByIdStub, 'loadById').mockResolvedValueOnce(null)
+    loadAccountByIdSpy.account = null
 
-    const account = await sut.loadById('any_id')
+    const account = await sut.loadById(loadAccountByIdParams)
 
-    expect(account).toBe(null)
-  })
-
-  test('Should return account on success', async () => {
-    const date = new Date()
-
-    const { sut } = makeSut(date)
-
-    const account = await sut.loadById('any_id')
-
-    expect(account).toEqual(makeFakeAccount(date))
+    expect(account).toBeNull()
   })
 
   test('Should throw if LoadAccountByIdRepository throws', async () => {
-    const { sut, loadAccountByIdStub } = makeSut()
+    const { sut, loadAccountByIdSpy } = makeSut()
 
-    jest.spyOn(loadAccountByIdStub, 'loadById').mockImplementationOnce(() => {
-      throw new Error()
-    })
+    jest
+      .spyOn(loadAccountByIdSpy, 'loadById')
+      .mockImplementationOnce(throwError)
 
-    const account = sut.loadById('any_id')
+    const account = sut.loadById(loadAccountByIdParams)
 
     await expect(account).rejects.toThrow()
+  })
+
+  test('Should return account on success', async () => {
+    const { sut, loadAccountByIdSpy } = makeSut()
+
+    const account = await sut.loadById(loadAccountByIdParams)
+
+    expect(account).toEqual(loadAccountByIdSpy.account)
   })
 })

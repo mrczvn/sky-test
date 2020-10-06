@@ -1,5 +1,5 @@
-import { IAccount } from '../mongodb/mongo-account-repository'
+import { IAccountRepository } from '../mongodb/mongo-account-repository'
 
 export interface ILoadAccountByToken {
-  load: (accessToken: string, role?: string) => Promise<IAccount>
+  load: (accessToken: string, role?: string) => Promise<IAccountRepository>
 }

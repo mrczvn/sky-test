@@ -8,10 +8,9 @@ export class ValidationComposite implements IValidation {
   }
 
   validate(input: any): Error {
-    for (const validation of this.validations) {
-      const error = validation.validate(input)
-
-      if (error) return error
-    }
+    return this.validations.reduce(
+      (acc, validation) => acc || validation.validate(input),
+      this.validations[0].validate(input)
+    )
   }
 }
